@@ -1,0 +1,6 @@
+# Email: peeruzia@gmail.com
+*.exe
+*.o
+.vscode/
+test_exec
+Main
