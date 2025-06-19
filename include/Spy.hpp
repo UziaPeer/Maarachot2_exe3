@@ -17,6 +17,8 @@ public:
 
     bool isArrestBlocked(const std::string& player_name) const;
     void clearBlock(const std::string& player_name); // לקרוא לזה בתחילת התור של השחקן ההוא
+    void tax() override;
+
 };
 
 }

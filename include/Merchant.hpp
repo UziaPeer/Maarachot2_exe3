@@ -11,6 +11,8 @@ public:
     void tax() override;
     void beginTurnBonus();       // נקרא בתחילת תורו
     void onArrest();             // מטפל במעצר
+    void gather() override;
+
 };
 
 }

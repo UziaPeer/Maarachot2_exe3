@@ -31,4 +31,9 @@ void Judge::onSanction(Player& attacker) {
     attacker.deductCoins(1);  // מי שתקף אותו משלם לקופה עוד מטבע
 }
 
+void Judge::undo(Player& target) {
+    throw std::runtime_error("Judge cannot undo tax.");
+}
+
+
 }

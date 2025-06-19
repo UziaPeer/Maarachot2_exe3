@@ -30,5 +30,14 @@ void Merchant::onArrest() {
     coin_count -= 2;
     // הכסף הולך לקופה (לא לשחקן שעצר)
 }
+void Merchant::gather() {
+    if (!active) throw std::runtime_error("Merchant is not active.");
+    if (game.turn() != name) throw std::runtime_error("Not your turn.");
+
+    beginTurnBonus();  // אם יש לו 3+ מטבעות, מקבל עוד אחד
+    coin_count += 1;
+    game.nextTurn();
+}
+
 
 }

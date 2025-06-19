@@ -27,4 +27,11 @@ void Spy::clearBlock(const string& player_name) {
     arrest_blocked.erase(player_name);
 }
 
+void Spy::tax() {
+    if (!active) throw std::runtime_error("Spy is not active.");
+    if (game.turn() != name) throw std::runtime_error("Not your turn.");
+    coin_count += 2;
+    game.nextTurn();
+}
+
 }

@@ -11,6 +11,8 @@ public:
     void tax() override;
     void undoBribe(Player& target);   // ביטול שוחד
     void onSanction(Player& attacker); // מעניש את זה שהפעיל עליו sanction
+    void undo(Player& target);  // ← נזרוק שגיאה כמו בדמו
+
 };
 
 }

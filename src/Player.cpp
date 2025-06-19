@@ -33,9 +33,17 @@ void Player::sanction(Player& other) {
     throw runtime_error("This role cannot perform sanction.");
 }
 
-void Player::coup(Player& other) {
-    throw runtime_error("This role cannot perform coup.");
+void Player::coup(Player& target) {
+    if (!active) throw std::runtime_error("Player is not active.");
+    if (game.turn() != name) throw std::runtime_error("Not your turn.");
+    if (!target.isActive()) throw std::runtime_error("Target is already out.");
+    if (coin_count < 7) throw std::runtime_error("Not enough coins to perform coup.");
+
+    deductCoins(7);
+    target.active = false;  // מדיח את השחקן
+    game.nextTurn();
 }
+
 
 string Player::getName() const {
     return name;
