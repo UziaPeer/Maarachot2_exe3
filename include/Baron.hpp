@@ -10,7 +10,8 @@ public:
 
     void tax() override;       // כמו player רגיל
     void invest();             // הפעולה הייחודית
-    void onSanction();         // קוראים לה אם נפגע מ-sanction
+    void onSanction(Player& attacker) override;
+    // קוראים לה אם נפגע מ-sanction
 };
 
 }

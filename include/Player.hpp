@@ -18,9 +18,6 @@ public:
 
     virtual void gather();     // פעולה בסיסית
     virtual void tax();        // ניתן לדרוס בתפקידים
-    virtual void bribe();
-    virtual void arrest(Player& other);
-    virtual void sanction(Player& other);
     virtual void coup(Player& other);
 
     std::string getName() const;
@@ -29,6 +26,26 @@ public:
 
     void addCoins(int amount);
     void deductCoins(int amount);
+
+    std::string last_arrested_name;
+    virtual void arrest(Player& target);
+    virtual void onArrest(); // תפקידים יכולים לדרוס
+    
+    virtual void sanction(Player& target);
+    virtual void onSanction(Player& attacker); // תפקידים יכולים להגיב
+    bool isSanctioned() const;
+
+    bool bribed_this_turn = false;
+    bool action_taken_this_turn = false;
+
+    virtual void bribe();
+    bool hasBribed() const;
+    void resetTurnFlags();  // לקרוא בתחילת תור
+    void markAction();      // לסמן שבוצעה פעולה
+    bool canAct() const;    // מותר לפעול?
+    void cancelBribe();     // עבור Judge::undoBribe
+
+
 };
 
 }

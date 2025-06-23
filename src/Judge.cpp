@@ -32,6 +32,7 @@ void Judge::onSanction(Player& attacker) {
 }
 
 void Judge::undo(Player& target) {
+    (void)target;
     throw std::runtime_error("Judge cannot undo tax.");
 }
 

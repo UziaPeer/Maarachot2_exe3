@@ -25,8 +25,10 @@ void Baron::invest() {
     game.nextTurn();
 }
 
-void Baron::onSanction() {
-    coin_count += 1;  // מקבל פיצוי
+void Baron::onSanction(Player& attacker) {
+    (void)attacker;
+    coin_count += 1;
 }
+
 
 }

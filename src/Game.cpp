@@ -50,9 +50,16 @@ string Game::winner() const {
 
 void Game::nextTurn() {
     size_t start_index = current_index;
+
     do {
         current_index = (current_index + 1) % player_list.size();
         if (player_list[current_index]->isActive()) {
+            // איפוס חסימת sanction
+            removeSanction(player_list[current_index]->getName());
+
+            // איפוס דגלי תור
+            player_list[current_index]->resetTurnFlags();
+
             return;
         }
     } while (current_index != start_index);
@@ -60,9 +67,25 @@ void Game::nextTurn() {
     throw runtime_error("No active players remaining.");
 }
 
+
+
 void Game::removePlayer(Player* player) {
+    (void)player;
+    // אין צורך למחוק את השחקן מהרשימה, רק לסמן אותו כלא פעיל
     // פשוט מבטל את השחקן (המחיקה תתבצע בפועל ע"י isActive = false)
     // לא מסיר מהרשימה כדי לא לשבור את האינדקסים
+}
+
+void Game::addSanction(const std::string& name) {
+    sanctioned_players.insert(name);
+}
+
+void Game::removeSanction(const std::string& name) {
+    sanctioned_players.erase(name);
+}
+
+bool Game::isSanctioned(const std::string& name) const {
+    return sanctioned_players.count(name) > 0;
 }
 
 }
