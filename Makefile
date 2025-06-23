@@ -32,7 +32,7 @@ valgrind: Main
 
 # ניקוי קבצים בינאריים בלבד
 clean:
-	rm -f Main test_exec
+	rm -f Main test_exec MockGUI
 
 .PHONY: all Main test test_exec valgrind clean
 
