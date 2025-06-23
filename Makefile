@@ -36,4 +36,7 @@ clean:
 
 .PHONY: all Main test test_exec valgrind clean
 
+MockGUI: MockGUI.cpp $(SRC)
+	$(CXX) $(CXXFLAGS) -o MockGUI MockGUI.cpp $(SRC)
+
 
