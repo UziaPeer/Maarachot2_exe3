@@ -1,51 +1,54 @@
-// peeruzia@gmail.com
 #pragma once
 #include <string>
-#include "Game.hpp"
 
 namespace coup {
 
-class Player {
-protected:
-    std::string name;
-    Game& game;
-    int coin_count;
-    bool active;
+    class Game; // קדימה
 
-public:
-    Player(Game& game, const std::string& name);
-    virtual ~Player() = default;
+    class Player {
+    protected:
+        std::string name;
+        std::string role_name;
+        int coin_count;
+        Game* game;
+        bool active;
 
-    virtual void gather();     // פעולה בסיסית
-    virtual void tax();        // ניתן לדרוס בתפקידים
-    virtual void coup(Player& other);
+        int lastBribeTurn;
+        int lastArrestedTurn;
+        int sanctionedUntil;
 
-    std::string getName() const;
-    int coins() const;
-    bool isActive() const;
+    public:
+        Player(Game& g, const std::string& name);
+        virtual ~Player() = default;
 
-    void addCoins(int amount);
-    void deductCoins(int amount);
+        std::string getName() const;
+        virtual std::string role() const;
+        int coins() const;
+        bool isActive() const;
 
-    std::string last_arrested_name;
-    virtual void arrest(Player& target);
-    virtual void onArrest(); // תפקידים יכולים לדרוס
-    
-    virtual void sanction(Player& target);
-    virtual void onSanction(Player& attacker); // תפקידים יכולים להגיב
-    bool isSanctioned() const;
+        virtual void gather();
+        virtual void tax();
+        virtual void bribe();
+        virtual void arrest(Player& other);
+        virtual void sanction(Player& other);
+        virtual void coup(Player& other);
+        virtual void undo(Player& other);
 
-    bool bribed_this_turn = false;
-    bool action_taken_this_turn = false;
+        void addCoins(int amount);
+        void removeCoins(int amount);
 
-    virtual void bribe();
-    bool hasBribed() const;
-    void resetTurnFlags();  // לקרוא בתחילת תור
-    void markAction();      // לסמן שבוצעה פעולה
-    bool canAct() const;    // מותר לפעול?
-    void cancelBribe();     // עבור Judge::undoBribe
+        void markAction();
+        bool canAct() const;
 
+        int getLastArrestedTurn() const;
+        void setLastArrestedTurn(int turn);
+        void setSanction(int until);
+        bool isSanctioned(int currentTurn) const;
 
-};
+        // ✅ פונקציות שהוספנו:
+        int getLastBribeTurn() const;
+        void reactivate();
 
+        friend class Game;
+    };
 }

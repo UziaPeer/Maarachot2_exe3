@@ -1,91 +1,119 @@
-// peeruzia@gmail.com
 #include "Game.hpp"
 #include "Player.hpp"
-#include <stdexcept>
+#include <iostream>
 
-using namespace std;
+using namespace coup;
 
-namespace coup {
+// בנאי – מאתחל את המשתנים
+Game::Game() : current_index(0), turn_counter(0), game_started(false) {}
 
-Game::Game() : current_index(0) {}
-
+/**
+ * מוסיף שחקן חדש למשחק.
+ * רק אם המשחק עדיין לא התחיל.
+ */
 void Game::addPlayer(Player* player) {
-    if (player_list.size() >= 6) {
-        throw runtime_error("Cannot add more than 6 players.");
+    if (game_started) {
+        throw std::runtime_error("Cannot add players after the game has started");
     }
-    player_list.push_back(player);
+    if (players_list.size() >= 6) {
+        throw std::runtime_error("Cannot add more than 6 players");
+    }
+    players_list.push_back(player);
 }
 
-string Game::turn() const {
-    if (player_list.empty()) {
-        throw runtime_error("No players in the game.");
-    }
-    return player_list.at(current_index)->getName();
-}
-
-vector<string> Game::players() const {
-    vector<string> names;
-    for (Player* p : player_list) {
+/**
+ * מחזירה את שמות השחקנים שעדיין במשחק (פעילים)
+ */
+std::vector<std::string> Game::players() const {
+    std::vector<std::string> result;
+    for (auto* p : players_list) {
         if (p->isActive()) {
-            names.push_back(p->getName());
+            result.push_back(p->getName());
         }
     }
-    return names;
+    return result;
 }
 
-string Game::winner() const {
-    int alive_count = 0;
-    string last_name;
-    for (Player* p : player_list) {
+/**
+ * מחזירה את שם השחקן שתורו עכשיו
+ */
+std::string Game::turn() const {
+    if (players_list.empty()) {
+        throw std::runtime_error("No players in game");
+    }
+    return getCurrentPlayer()->getName();
+}
+
+/**
+ * מחזירה את המנצח אם יש אחד בלבד.
+ * אחרת זורקת חריגה.
+ */
+std::string Game::winner() const {
+    int alive = 0;
+    std::string winnerName = "";
+
+    for (auto* p : players_list) {
         if (p->isActive()) {
-            alive_count++;
-            last_name = p->getName();
+            alive++;
+            winnerName = p->getName();
         }
     }
-    if (alive_count == 1) {
-        return last_name;
+
+    if (alive == 1) {
+        return winnerName;
+    } else {
+        throw std::runtime_error("The game is still ongoing");
     }
-    throw runtime_error("Game is still ongoing.");
 }
 
-void Game::nextTurn() {
-    size_t start_index = current_index;
+/**
+ * מחזירה את השחקן שתורו כעת (כולל דילוג על מודחים)
+ */
+Player* Game::getCurrentPlayer() const {
+    int count = players_list.size();
+    int idx = current_index % count;
+
+    // אם השחקן לא פעיל – מדלגים עד שנמצא פעיל
+    while (!players_list[idx]->isActive()) {
+        idx = (idx + 1) % count;
+    }
+    return players_list[idx];
+}
+
+/**
+ * מעבירה את התור לשחקן הבא הפעיל
+ */
+void Game::advanceTurn() {
+    int count = players_list.size();
+    if (count == 0) return;
+
+    game_started = true; // המשחק התחיל כשמתבצעת פעולה כלשהי
 
     do {
-        current_index = (current_index + 1) % player_list.size();
-        if (player_list[current_index]->isActive()) {
-            // איפוס חסימת sanction
-            removeSanction(player_list[current_index]->getName());
+        current_index = (current_index + 1) % count;
+    } while (!players_list[current_index]->isActive());
 
-            // איפוס דגלי תור
-            player_list[current_index]->resetTurnFlags();
-
-            return;
-        }
-    } while (current_index != start_index);
-
-    throw runtime_error("No active players remaining.");
+    turn_counter++;
 }
 
-
-
+/**
+ * מסירה שחקן שהודח מהמשחק
+ * פשוט מסמנים אותו כלא פעיל – לא מוחקים פיזית
+ */
 void Game::removePlayer(Player* player) {
-    (void)player;
-    // אין צורך למחוק את השחקן מהרשימה, רק לסמן אותו כלא פעיל
-    // פשוט מבטל את השחקן (המחיקה תתבצע בפועל ע"י isActive = false)
-    // לא מסיר מהרשימה כדי לא לשבור את האינדקסים
+    player->active = false;
 }
 
-void Game::addSanction(const std::string& name) {
-    sanctioned_players.insert(name);
+/**
+ * מחזירה את מספר התור הנוכחי (עבור חסימות וכו')
+ */
+int Game::getTurnCounter() const {
+    return turn_counter;
 }
 
-void Game::removeSanction(const std::string& name) {
-    sanctioned_players.erase(name);
-}
-
-bool Game::isSanctioned(const std::string& name) const {
-    return sanctioned_players.count(name) > 0;
-}
-
+/**
+ * האם המשחק התחיל (כלומר בוצעה פעולה)
+ */
+bool Game::hasStarted() const {
+    return game_started;
 }

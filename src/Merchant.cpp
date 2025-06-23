@@ -1,43 +1,55 @@
-// peeruzia@gmail.com
 #include "Merchant.hpp"
-#include <stdexcept>
+#include "Game.hpp"
 
-using namespace std;
+using namespace coup;
 
-namespace coup {
-
-Merchant::Merchant(Game& game, const string& name) : Player(game, name) {}
-
-void Merchant::tax() {
-    if (!active) throw runtime_error("Merchant is not active.");
-    if (game.turn() != name) throw runtime_error("Not your turn.");
-
-    beginTurnBonus();  // מוסיף בונוס לפני הפעולה
-    coin_count += 2;
-    game.nextTurn();
+/**
+ * בנאי – מגדיר שם תפקיד
+ */
+Merchant::Merchant(Game& game, const std::string& name)
+    : Player(game, name)
+{
+    role_name = "Merchant";
 }
 
-void Merchant::beginTurnBonus() {
-    if (coin_count >= 3) {
-        coin_count += 1;
-    }
-}
-
-void Merchant::onArrest() {
-    if (coin_count < 2) {
-        throw runtime_error("Merchant has less than 2 coins for arrest penalty.");
-    }
-    coin_count -= 2;
-    // הכסף הולך לקופה (לא לשחקן שעצר)
-}
+/**
+ * gather – אם יש לו לפחות 3 מטבעות בתחילת התור,
+ * מקבל אחד נוסף במתנה לפני הפעולה.
+ */
 void Merchant::gather() {
-    if (!active) throw std::runtime_error("Merchant is not active.");
-    if (game.turn() != name) throw std::runtime_error("Not your turn.");
+    if (!canAct()) throw std::runtime_error("Not your turn");
 
-    beginTurnBonus();  // אם יש לו 3+ מטבעות, מקבל עוד אחד
-    coin_count += 1;
-    game.nextTurn();
+    if (isSanctioned(game->getTurnCounter())) {
+        throw std::runtime_error("You are sanctioned");
+    }
+
+    // בונוס: אם יש 3 מטבעות או יותר – מוסיפים 1
+    if (coin_count >= 3) {
+        addCoins(1);
+    }
+
+    // כרגיל: מקבל עוד 1 מהקופה
+    addCoins(1);
+    markAction();
 }
 
+/**
+ * arrest – כשסוחר נעצר:
+ * במקום לאבד מטבע לשחקן השני → משלם 2 לקופה (למערכת)
+ */
+void Merchant::arrest(Player& other) {
+    if (!canAct()) throw std::runtime_error("Not your turn");
 
+    if (other.getLastArrestedTurn() == game->getTurnCounter() - 1) {
+        throw std::runtime_error("Can't arrest same player twice in a row");
+    }
+
+    // מורידים לו 2 מטבעות – לא נותנים לשחקן השני
+    if (other.coins() < 2) {
+        throw std::runtime_error("Merchant has insufficient coins to pay arrest penalty");
+    }
+
+    other.removeCoins(2); // הקופה מקבלת
+    other.setLastArrestedTurn(game->getTurnCounter());
+    markAction();
 }

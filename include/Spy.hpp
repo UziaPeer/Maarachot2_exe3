@@ -1,24 +1,21 @@
-// peeruzia@gmail.com
 #pragma once
 #include "Player.hpp"
-#include <unordered_map>
 
 namespace coup {
 
-class Spy : public Player {
-private:
-    std::unordered_map<std::string, bool> arrest_blocked;
+    /**
+     * מחלקת Spy (מרגל)
+     * תכונות מיוחדות:
+     * - יכול להסתכל על כמות המטבעות של שחקן אחר.
+     * - יכול למנוע מהשחקן להשתמש ב־arrest בתור הבא שלו.
+     * - הפעולה לא נחשבת לתור ולא עולה מטבעות.
+     */
+    class Spy : public Player {
+    public:
+        // בנאי
+        Spy(Game& game, const std::string& name);
 
-public:
-    Spy(Game& game, const std::string& name);
-
-    int reveal(Player& target) const;     // לראות כמה מטבעות יש לו
-    void block_arrest(Player& target);    // לחסום את ה-arrest שלו
-
-    bool isArrestBlocked(const std::string& player_name) const;
-    void clearBlock(const std::string& player_name); // לקרוא לזה בתחילת התור של השחקן ההוא
-    void tax() override;
-
-};
-
+        // פעולה מיוחדת – "מעקב" אחרי שחקן אחר (חוסם לו arrest)
+        void track(Player& other);
+    };
 }

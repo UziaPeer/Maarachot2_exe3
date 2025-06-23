@@ -1,17 +1,23 @@
-// peeruzia@gmail.com
 #pragma once
 #include "Player.hpp"
 
 namespace coup {
 
-class Baron : public Player {
-public:
-    Baron(Game& game, const std::string& name);
+    /**
+     * מחלקת Baron (ברון)
+     * תכונות מיוחדות:
+     * - יכול להשקיע: משלם 3 מטבעות ומקבל 6 (רווח של 3).
+     * - אם חטף sanction, מקבל מטבע אחד פיצוי (כלומר מפסיד רק 2).
+     */
+    class Baron : public Player {
+    public:
+        // בנאי
+        Baron(Game& game, const std::string& name);
 
-    void tax() override;       // כמו player רגיל
-    void invest();             // הפעולה הייחודית
-    void onSanction(Player& attacker) override;
-    // קוראים לה אם נפגע מ-sanction
-};
+        // פעולה מיוחדת: השקעה – invest
+        void invest();
 
+        // override ל־sanction – עם פיצוי
+        void sanction(Player& other) override;
+    };
 }

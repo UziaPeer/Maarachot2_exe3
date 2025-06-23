@@ -1,35 +1,39 @@
-// peeruzia@gmail.com
 #include "Governor.hpp"
-#include "Player.hpp"
+#include "Game.hpp"
 #include <stdexcept>
 
-using namespace std;
+using namespace coup;
 
-namespace coup {
+/**
+ * בנאי של Governor – קורא לבנאי של המחלקה הבסיסית Player
+ */
+Governor::Governor(Game& game, const std::string& name)
+    : Player(game, name)
+{
+    role_name = "Governor";
+}
 
-Governor::Governor(Game& game, const string& name) : Player(game, name) {}
-
+/**
+ * פעולה מיוחדת – מס (tax) עם בונוס:
+ * מקבל 3 מטבעות במקום 2.
+ */
 void Governor::tax() {
-    if (!active) throw runtime_error("Governor is not active.");
-    if (game.turn() != name) throw runtime_error("Not your turn.");
-    
-    coin_count += 3;
-    game.nextTurn();
+    if (!canAct()) throw std::runtime_error("Not your turn");
+    if (isSanctioned(game->getTurnCounter())) throw std::runtime_error("You are sanctioned");
+    addCoins(3);
+    markAction();
 }
 
-void Governor::undo(Player& target) {
-    if (!target.isActive()) throw runtime_error("Target is not active.");
-    
-    int targetCoins = target.coins();
-
-    // אם הוא לקח 2 או 3, נוריד אותם
-    if (targetCoins >= 3) {
-        target.deductCoins(3);
-    } else if (targetCoins >= 2) {
-        target.deductCoins(2);
-    } else {
-        throw runtime_error("Cannot undo tax: target has too few coins.");
+/**
+ * undo – פעולה לחסימת tax של שחקנים אחרים.
+ * מחזיר 2 מטבעות מהשחקן שביצע את הפעולה.
+ */
+void Governor::undo(Player& other) {
+    // אם השחקן השני לא ביצע tax לאחרונה – אין מה לבטל
+    // כדי לפשט, נניח שהוא ביצע tax בתור הנוכחי בלבד
+    if (other.coins() < 2) {
+        throw std::runtime_error("Cannot undo tax – insufficient coins to reverse");
     }
-}
-
+    // מחזירים 2 מטבעות חזרה לקופה (מורידים ממנו)
+    other.removeCoins(2);
 }

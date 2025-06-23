@@ -1,42 +1,22 @@
-// peeruzia@gmail.com
 #include "Player.hpp"
 #include "Game.hpp"
 #include <stdexcept>
 
-using namespace std;
-namespace coup {
+using namespace coup;
 
-Player::Player(Game& game, const string& name) : name(name), game(game), coin_count(0), active(true) {
-    game.addPlayer(this);
+Player::Player(Game& g, const std::string& name)
+    : name(name), role_name("Player"), coin_count(0), game(&g),
+      active(true), lastBribeTurn(-1), lastArrestedTurn(-1), sanctionedUntil(-1)
+{
+    g.addPlayer(this);
 }
 
-void Player::gather() {
-    if (!active) throw runtime_error("Player is not active.");
-    if (game.turn() != name) throw runtime_error("Not your turn.");
-    coin_count++;
-    game.nextTurn();
-}
-
-void Player::tax() {
-    throw runtime_error("This role cannot perform tax.");
-}
-
-
-
-void Player::coup(Player& target) {
-    if (!active) throw std::runtime_error("Player is not active.");
-    if (game.turn() != name) throw std::runtime_error("Not your turn.");
-    if (!target.isActive()) throw std::runtime_error("Target is already out.");
-    if (coin_count < 7) throw std::runtime_error("Not enough coins to perform coup.");
-
-    deductCoins(7);
-    target.active = false;  // מדיח את השחקן
-    game.nextTurn();
-}
-
-
-string Player::getName() const {
+std::string Player::getName() const {
     return name;
+}
+
+std::string Player::role() const {
+    return role_name;
 }
 
 int Player::coins() const {
@@ -51,103 +31,96 @@ void Player::addCoins(int amount) {
     coin_count += amount;
 }
 
-void Player::deductCoins(int amount) {
-    if (coin_count < amount) throw runtime_error("Not enough coins.");
+void Player::removeCoins(int amount) {
+    if (coin_count < amount) {
+        throw std::runtime_error("Not enough coins");
+    }
     coin_count -= amount;
 }
 
-void Player::arrest(Player& target) {
-    if (!active) throw std::runtime_error("Player is not active.");
-    if (game.turn() != name) throw std::runtime_error("Not your turn.");
-    if (!target.isActive()) throw std::runtime_error("Target is not active.");
-
-    if (target.getName() == last_arrested_name) {
-        throw std::runtime_error("Cannot arrest the same player twice in a row.");
-    }
-
-    if (target.coins() < 1) {
-        throw std::runtime_error("Target does not have any coins.");
-    }
-
-    // תהליך המעצר:
-    target.deductCoins(1);
-    this->addCoins(1);
-
-    // התנהגות מיוחדת לתפקידים מסוימים (דריסה):
-    target.onArrest();
-
-    // עדכון מעקב אחר העצור האחרון:
-    last_arrested_name = target.getName();
-
-    // סיום תור
-    game.nextTurn();
+void Player::gather() {
+    if (!canAct()) throw std::runtime_error("Not your turn");
+    if (isSanctioned(game->getTurnCounter())) throw std::runtime_error("You are sanctioned");
+    addCoins(1);
+    markAction();
 }
 
-void Player::onArrest() {
-    // ברירת מחדל – לא עושה כלום
-}
-
-void Player::sanction(Player& target) {
-    if (!active) throw std::runtime_error("Player is not active.");
-    if (game.turn() != name) throw std::runtime_error("Not your turn.");
-    if (!target.isActive()) throw std::runtime_error("Target is not active.");
-    if (coin_count < 3) throw std::runtime_error("Not enough coins to perform sanction.");
-
-    deductCoins(3);
-    game.addSanction(target.getName());
-
-    // התפקיד של target מגיב
-    target.onSanction(*this);
-
-    game.nextTurn();
-}
-
-void Player::onSanction(Player& attacker) {
-    (void)attacker;
-
-    // ברירת מחדל – לא עושה כלום
-}
-
-bool Player::isSanctioned() const {
-    return game.isSanctioned(name);
+void Player::tax() {
+    if (!canAct()) throw std::runtime_error("Not your turn");
+    if (isSanctioned(game->getTurnCounter())) throw std::runtime_error("You are sanctioned");
+    addCoins(2);
+    markAction();
 }
 
 void Player::bribe() {
-    if (!active) throw std::runtime_error("Player is not active.");
-    if (game.turn() != name) throw std::runtime_error("Not your turn.");
-    if (coin_count < 4) throw std::runtime_error("Not enough coins to bribe.");
-    if (bribed_this_turn) throw std::runtime_error("Already bribed this turn.");
-
-    deductCoins(4);
-    bribed_this_turn = true;
+    if (!canAct()) throw std::runtime_error("Not your turn");
+    removeCoins(4);
+    lastBribeTurn = game->getTurnCounter();
+    markAction();
 }
 
-bool Player::hasBribed() const {
-    return bribed_this_turn;
+void Player::arrest(Player& other) {
+    if (!canAct()) throw std::runtime_error("Not your turn");
+    if (other.getLastArrestedTurn() == game->getTurnCounter() - 1) {
+        throw std::runtime_error("Can't arrest same player twice in a row");
+    }
+    other.removeCoins(1);
+    addCoins(1);
+    other.setLastArrestedTurn(game->getTurnCounter());
+    markAction();
+}
+
+void Player::sanction(Player& other) {
+    if (!canAct()) throw std::runtime_error("Not your turn");
+    removeCoins(3);
+    other.setSanction(game->getTurnCounter() + 1);
+    markAction();
+}
+
+void Player::coup(Player& other) {
+    if (!canAct()) throw std::runtime_error("Not your turn");
+    if (coins() < 7) throw std::runtime_error("Not enough coins to coup");
+    removeCoins(7);
+    other.active = false;
+    game->removePlayer(&other);
+    markAction();
+}
+
+void Player::undo(Player& other) {
+    (void)other; // מסמן שהפרמטר לא בשימוש כדי למנוע אזהרה
+    throw std::runtime_error("This role cannot undo actions");
 }
 
 void Player::markAction() {
-    if (!canAct()) {
-        throw std::runtime_error("You already acted this turn.");
-    }
-    action_taken_this_turn = true;
-    if (!bribed_this_turn) {
-        game.nextTurn();
-    }
+    game->advanceTurn();
 }
 
 bool Player::canAct() const {
-    return !action_taken_this_turn || bribed_this_turn;
+    return game->getCurrentPlayer() == this;
 }
 
-void Player::resetTurnFlags() {
-    bribed_this_turn = false;
-    action_taken_this_turn = false;
+int Player::getLastArrestedTurn() const {
+    return lastArrestedTurn;
 }
 
-void Player::cancelBribe() {
-    bribed_this_turn = false;
+void Player::setLastArrestedTurn(int turn) {
+    lastArrestedTurn = turn;
 }
 
+void Player::setSanction(int until) {
+    sanctionedUntil = until;
+}
 
+bool Player::isSanctioned(int currentTurn) const {
+    return currentTurn < sanctionedUntil;
+}
+
+// ✅ פונקציות שנוספו:
+
+int Player::getLastBribeTurn() const {
+    return lastBribeTurn;
+}
+
+void Player::reactivate() {
+    active = true;
 }

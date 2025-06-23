@@ -1,34 +1,46 @@
-// peeruzia@gmail.com
 #include "Baron.hpp"
-#include <stdexcept>
+#include "Game.hpp"
 
-using namespace std;
+using namespace coup;
 
-namespace coup {
-
-Baron::Baron(Game& game, const string& name) : Player(game, name) {}
-
-void Baron::tax() {
-    if (!active) throw runtime_error("Baron is not active.");
-    if (game.turn() != name) throw runtime_error("Not your turn.");
-    coin_count += 2;
-    game.nextTurn();
+/**
+ * בנאי של Baron – מגדיר את שם התפקיד
+ */
+Baron::Baron(Game& game, const std::string& name)
+    : Player(game, name)
+{
+    role_name = "Baron";
 }
 
+/**
+ * פעולה מיוחדת: invest – משקיע 3 מטבעות, מקבל 6
+ * זוהי פעולה רגילה שדורשת להיות בתור.
+ */
 void Baron::invest() {
-    if (!active) throw runtime_error("Baron is not active.");
-    if (game.turn() != name) throw runtime_error("Not your turn.");
-    if (coin_count < 3) throw runtime_error("Not enough coins to invest.");
+    if (!canAct()) throw std::runtime_error("Not your turn");
 
-    coin_count -= 3;
-    coin_count += 6;
-    game.nextTurn();
+    // צריך לפחות 3 מטבעות כדי להשקיע
+    if (coins() < 3) {
+        throw std::runtime_error("Not enough coins to invest");
+    }
+
+    removeCoins(3); // משלם 3
+    addCoins(6);    // מרוויח 6
+    markAction();   // מסיים תור
 }
 
-void Baron::onSanction(Player& attacker) {
-    (void)attacker;
-    coin_count += 1;
-}
+/**
+ * Baron מותקף ב־sanction → מקבל פיצוי של מטבע
+ * כלומר משלם רק 2 במקום 3
+ */
+void Baron::sanction(Player& other) {
+    if (!canAct()) throw std::runtime_error("Not your turn");
 
+    if (coins() < 2) {
+        throw std::runtime_error("Not enough coins to pay sanction (even reduced)");
+    }
 
+    removeCoins(2); // רק 2 מטבעות
+    other.setSanction(game->getTurnCounter() + 1); // חוסם את הפעולות שלו
+    markAction();
 }

@@ -1,18 +1,23 @@
-// peeruzia@gmail.com
 #pragma once
 #include "Player.hpp"
 
 namespace coup {
 
-class Judge : public Player {
-public:
-    Judge(Game& game, const std::string& name);
+    /**
+     * מחלקת Judge (שופט)
+     * תכונות מיוחדות:
+     * - יכול לבטל פעולה של שוחד (bribe) של שחקן אחר → השחקן מפסיד 4 מטבעות.
+     * - אם מקבל sanction, המטיל משלם מטבע נוסף לקופה.
+     */
+    class Judge : public Player {
+    public:
+        // בנאי
+        Judge(Game& game, const std::string& name);
 
-    void tax() override;
-    void undoBribe(Player& target);   // ביטול שוחד
-    void onSanction(Player& attacker); // מעניש את זה שהפעיל עליו sanction
-    void undo(Player& target);  // ← נזרוק שגיאה כמו בדמו
+        // פעולה מיוחדת: ביטול שוחד (undo bribe)
+        void undo(Player& other) override;
 
-};
-
+        // override ל־sanction – המטיל משלם מטבע נוסף
+        void sanction(Player& other) override;
+    };
 }
