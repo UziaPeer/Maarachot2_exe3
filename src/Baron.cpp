@@ -18,7 +18,7 @@ Baron::Baron(Game& game, const std::string& name)
  */
 void Baron::invest() {
     if (!canAct()) throw std::runtime_error("Not your turn");
-
+    if (coins() >= 10) throw std::runtime_error("Must perform coup with 10 coins");
     // צריך לפחות 3 מטבעות כדי להשקיע
     if (coins() < 3) {
         throw std::runtime_error("Not enough coins to invest");

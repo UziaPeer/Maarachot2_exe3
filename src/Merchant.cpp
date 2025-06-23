@@ -18,7 +18,7 @@ Merchant::Merchant(Game& game, const std::string& name)
  */
 void Merchant::gather() {
     if (!canAct()) throw std::runtime_error("Not your turn");
-
+    if (coins() >= 10) throw std::runtime_error("Must perform coup with 10 coins");
     if (isSanctioned(game->getTurnCounter())) {
         throw std::runtime_error("You are sanctioned");
     }

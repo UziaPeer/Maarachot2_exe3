@@ -85,3 +85,38 @@ TEST_CASE("בדיקת arrest כפול") {
     CHECK_NOTHROW(s.arrest(gen)); // מותר
     CHECK_THROWS(s.arrest(gen));  // פעמיים ברצף – אסור
 }
+
+TEST_CASE("שחקן עם 10 מטבעות חייב לבצע coup") {
+    Game g;
+    Governor gov(g, "Alice");
+    Spy spy(g, "Bob");
+    Baron baron(g, "Charlie");
+
+    // gov עולה ל־9
+    gov.tax();      // 3
+    spy.gather();
+    baron.gather();
+
+    gov.tax();      // 6
+    spy.gather();
+    baron.gather();
+
+    gov.tax();      // 9
+    spy.gather();
+    baron.gather();
+
+    // תורו שוב
+    CHECK(g.turn() == "Alice");
+
+    // מוסיפים לו ידנית 1 (בלי לסיים תור)
+    gov.addCoins(1);
+    CHECK(gov.coins() == 10);
+
+    // פעולה רגילה – אמורה להיכשל
+    CHECK_THROWS(gov.tax());
+
+    // coup – מותרת
+    CHECK_NOTHROW(gov.coup(baron));
+}
+
+

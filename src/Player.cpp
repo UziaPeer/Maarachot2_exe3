@@ -40,6 +40,7 @@ void Player::removeCoins(int amount) {
 
 void Player::gather() {
     if (!canAct()) throw std::runtime_error("Not your turn");
+    if (coins() >= 10) throw std::runtime_error("Must perform coup with 10 coins");  
     if (isSanctioned(game->getTurnCounter())) throw std::runtime_error("You are sanctioned");
     addCoins(1);
     markAction();
@@ -47,6 +48,7 @@ void Player::gather() {
 
 void Player::tax() {
     if (!canAct()) throw std::runtime_error("Not your turn");
+    if (coins() >= 10) throw std::runtime_error("Must perform coup with 10 coins"); 
     if (isSanctioned(game->getTurnCounter())) throw std::runtime_error("You are sanctioned");
     addCoins(2);
     markAction();
@@ -54,6 +56,7 @@ void Player::tax() {
 
 void Player::bribe() {
     if (!canAct()) throw std::runtime_error("Not your turn");
+    if (coins() >= 10) throw std::runtime_error("Must perform coup with 10 coins"); 
     removeCoins(4);
     lastBribeTurn = game->getTurnCounter();
     markAction();
