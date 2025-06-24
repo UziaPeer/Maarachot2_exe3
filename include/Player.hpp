@@ -17,6 +17,10 @@ namespace coup {
         int lastBribeTurn;
         int lastArrestedTurn;
         int sanctionedUntil;
+        int blockedArrestUntilTurnCounter; // תור עד אליו אסור לבצע arrest
+        int sanctionedUntilTurnCounter; // תור עד אליו השחקן חסום כלכלית
+
+
 
     public:
         Player(Game& g, const std::string& name);
@@ -49,6 +53,12 @@ namespace coup {
         // ✅ פונקציות שהוספנו:
         int getLastBribeTurn() const;
         void reactivate();
+
+        void setBlockedArrestUntil(int turn); // קובע עד איזה תור אסור לבצע arrest
+        bool canArrest(int currentTurn) const;   // בודק אם מותר לבצע arrest בתור הנוכחי
+        void setSanctionedUntilTurn(int turn); // קובע עד איזה תור תהיה חסימה
+        bool isSanctioned() const;             // האם השחקן חסום כעת
+        bool canArrestNow() const;            // האם מותר לו לבצע arrest כעת
 
         friend class Game;
     };

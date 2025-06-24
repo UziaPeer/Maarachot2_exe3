@@ -7,7 +7,7 @@ using namespace coup;
 
 Player::Player(Game& g, const std::string& name)
     : name(name), role_name("Player"), coin_count(0), game(&g),
-      active(true), lastBribeTurn(-1), lastArrestedTurn(-1), sanctionedUntil(-1)
+      active(true), lastBribeTurn(-1), lastArrestedTurn(-1), sanctionedUntil(-1), blockedArrestUntilTurnCounter(-1), sanctionedUntilTurnCounter(-1)
 {
     g.addPlayer(this);
 }
@@ -42,7 +42,7 @@ void Player::removeCoins(int amount) {
 void Player::gather() {
     if (!canAct()) throw std::runtime_error("Not your turn");
     if (coins() >= 10) throw std::runtime_error("Must perform coup with 10 coins");  
-    if (isSanctioned(game->getTurnCounter())) throw std::runtime_error("You are sanctioned");
+    if (isSanctioned()) throw std::runtime_error("You are under sanction and cannot gather");
     addCoins(1);
     markAction();
 }
@@ -50,7 +50,7 @@ void Player::gather() {
 void Player::tax() {
     if (!canAct()) throw std::runtime_error("Not your turn");
     if (coins() >= 10) throw std::runtime_error("Must perform coup with 10 coins"); 
-    if (isSanctioned(game->getTurnCounter())) throw std::runtime_error("You are sanctioned");
+    if (isSanctioned()) throw std::runtime_error("You are under sanction and cannot gather");
     addCoins(2);
     markAction();
 }
@@ -65,6 +65,9 @@ void Player::bribe() {
 
 void Player::arrest(Player& other) {
     if (!canAct()) throw std::runtime_error("Not your turn");
+    if (!canArrestNow()) {
+        throw std::runtime_error("You are blocked from using arrest this turn");
+    }    
     if (other.getLastArrestedTurn() == game->getTurnCounter() - 1) {
         throw std::runtime_error("Can't arrest same player twice in a row");
     }
@@ -76,10 +79,18 @@ void Player::arrest(Player& other) {
 
 void Player::sanction(Player& other) {
     if (!canAct()) throw std::runtime_error("Not your turn");
+    if (coins() < 3) throw std::runtime_error("Not enough coins for sanction");
+
     removeCoins(3);
-    other.setSanction(game->getTurnCounter() + 1);
+
+    // הסנקציה תסתיים רק לאחר שיגיע תורו ויתבצע
+    int turnNow = game->getTurnCounter();
+    int totalPlayers = game->players().size();
+    other.setSanctionedUntilTurn(turnNow + totalPlayers);  // עד לסיום תורו הבא
+
     markAction();
 }
+
 
 void Player::coup(Player& other) {
     if (!canAct()) throw std::runtime_error("Not your turn");
@@ -127,4 +138,21 @@ int Player::getLastBribeTurn() const {
 
 void Player::reactivate() {
     active = true;
+}
+
+void Player::setBlockedArrestUntil(int turn) {
+    blockedArrestUntilTurnCounter = turn;
+}
+
+bool Player::canArrestNow() const {
+    if (!game) return true; // אם אין משחק – אין חסימה
+    return game->getTurnCounter() >= blockedArrestUntilTurnCounter;
+}
+
+void Player::setSanctionedUntilTurn(int turn) {
+    sanctionedUntilTurnCounter = turn;
+}
+
+bool Player::isSanctioned() const {
+    return sanctionedUntilTurnCounter > game->getTurnCounter();
 }
