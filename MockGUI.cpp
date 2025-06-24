@@ -54,7 +54,6 @@ int main() {
         make_shared<General>(game, "Eyal"),
         make_shared<Merchant>(game, "Tamar")
     };
-    
 
     while (true) {
         try {
@@ -79,36 +78,29 @@ int main() {
             cout << "בחר פעולה:\n";
             cout << "1. gather\n2. tax\n3. bribe\n4. arrest\n5. sanction\n6. coup\n";
 
-            int menuOption = 7;
-            if (dynamic_pointer_cast<Governor>(currentPlayer)) {
-                cout << menuOption++ << ". undo (Governor)\n";
+            if (dynamic_pointer_cast<Spy>(currentPlayer)) {
+                cout << "7. track (Spy)\n";
             }
             if (dynamic_pointer_cast<Baron>(currentPlayer)) {
-                cout << menuOption++ << ". invest (Baron)\n";
+                cout << "8. invest (Baron)\n";
             }
-            if (dynamic_pointer_cast<Spy>(currentPlayer)) {
-                cout << menuOption++ << ". track (Spy)\n";
+            if (dynamic_pointer_cast<Governor>(currentPlayer)) {
+                cout << "9. undo (Governor)\n";
             }
             if (dynamic_pointer_cast<General>(currentPlayer)) {
-                cout << menuOption++ << ". block coup (General)\n";
+                cout << "10. block coup (General)\n";
             }
             if (dynamic_pointer_cast<Judge>(currentPlayer)) {
-                cout << menuOption++ << ". undo bribe (Judge)\n";
+                cout << "11. undo bribe (Judge)\n";
             }
             if (dynamic_pointer_cast<Merchant>(currentPlayer)) {
-                cout << " Merchant: אם יש לך 3+ מטבעות בתחילת התור, תקבל 1 נוסף אוטומטית ב־gather.\n";
+                cout << "🟢 Merchant: אם יש לך 3+ מטבעות בתחילת התור, תקבל 1 נוסף אוטומטית ב־gather.\n";
             }
-            
 
             cout << "0. יציאה מהמשחק\n";
 
             int action = -1;
             cin >> action;
-
-            if (action == 0) {
-                cout << "המשחק הסתיים.\n";
-                break;
-            }
 
             // פעולות שדורשות יעד
             if (action == 4 || action == 5 || action == 6 ||
@@ -120,13 +112,13 @@ int main() {
                 else if (action == 5) currentPlayer->sanction(*target);
                 else if (action == 6) currentPlayer->coup(*target);
                 else if (action == 7) {
-                    if (auto gov = dynamic_pointer_cast<Governor>(currentPlayer)) {
-                        gov->undo(*target);
+                    if (auto spy = dynamic_pointer_cast<Spy>(currentPlayer)) {
+                        spy->track(*target);
                     }
                 }
                 else if (action == 9) {
-                    if (auto spy = dynamic_pointer_cast<Spy>(currentPlayer)) {
-                        spy->track(*target);
+                    if (auto gov = dynamic_pointer_cast<Governor>(currentPlayer)) {
+                        gov->undo(*target);
                     }
                 }
                 else if (action == 10) {
@@ -150,25 +142,16 @@ int main() {
                         }
                         break;
                     }
-                    case 10: { // General - block coup
-                        if (auto gen = dynamic_pointer_cast<General>(currentPlayer)) {
-                            int idx = chooseTarget(players, currentPlayer->getName());
-                            gen->blockCoup(*players[idx]);
-                        }
-                        break;
-                    }
-                    
                     default: cout << "פעולה לא חוקית\n";
                 }
             }
 
-            // בדיקת מנצח
             try {
                 string win = game.winner();
                 cout << "\n🏆 המנצח הוא: " << win << " 🏆\n";
                 break;
             } catch (...) {
-                // המשחק עדיין ממשיך
+                // המשחק ממשיך
             }
 
         } catch (const exception& e) {

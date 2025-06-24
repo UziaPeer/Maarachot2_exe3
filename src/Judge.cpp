@@ -27,6 +27,7 @@ void Judge::undo(Player& other) {
     } else {
         throw std::runtime_error("No bribe to undo");
     }
+    markAction();
 }
 
 /**
