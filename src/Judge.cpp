@@ -1,6 +1,8 @@
 // peeruzia@gmail.com
 #include "Judge.hpp"
 #include "Game.hpp"
+#include <iostream>
+
 
 using namespace coup;
 
@@ -15,20 +17,21 @@ Judge::Judge(Game& game, const std::string& name)
 
 /**
  * undo – מבטל bribe (שוחד) של שחקן אחר.
- * בודק אם השוחד בוצע בתור הנוכחי, ואז מוריד ממנו 4 מטבעות.
  */
-void Judge::undo(Player& other) {
-    // אם השוחד בוצע בתור הנוכחי – ניתן לבטל
-    if (other.getLastBribeTurn() == game->getTurnCounter()) {
-        if (other.coins() < 4) {
-            throw std::runtime_error("Cannot undo bribe – player has spent the coins");
-        }
-        other.removeCoins(4);
+
+ void Judge::undo(Player& other) {
+    // בדיקה אם השחקן בכלל קיבל תור כפול מ־bribe
+    if (other.hasExtraTurnNextRound) {
+        other.hasExtraTurnNextRound = false;
+        std::cout << "(Judge) Bribe undone: player will not get an extra turn next round.\n";
     } else {
         throw std::runtime_error("No bribe to undo");
     }
-    markAction();
+
+    markAction(); // סיום התור של השופט
 }
+
+
 
 /**
  * Judge סופג sanction – המטיל משלם מטבע נוסף
