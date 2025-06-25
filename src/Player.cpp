@@ -7,7 +7,8 @@ using namespace coup;
 
 Player::Player(Game& g, const std::string& name)
     : name(name), role_name("Player"), coin_count(0), game(&g),
-      active(true), lastBribeTurn(-1), lastArrestedTurn(-1), sanctionedUntil(-1), blockedArrestUntilTurnCounter(-1), sanctionedUntilTurnCounter(-1)
+      active(true), lastBribeTurn(-1), lastArrestedTurn(-1), sanctionedUntil(-1), arrestBlockUntilTurnCounter (-1)
+        , sanctionedUntilTurnCounter(-1)
 {
     g.addPlayer(this);
 }
@@ -65,9 +66,10 @@ void Player::bribe() {
 
 void Player::arrest(Player& other) {
     if (!canAct()) throw std::runtime_error("Not your turn");
-    if (!canArrestNow()) {
+    if (isArrestBlocked()) {
         throw std::runtime_error("You are blocked from using arrest this turn");
-    }    
+    }
+      
     if (other.getLastArrestedTurn() == game->getTurnCounter() - 1) {
         throw std::runtime_error("Can't arrest same player twice in a row");
     }
@@ -140,14 +142,14 @@ void Player::reactivate() {
     active = true;
 }
 
-void Player::setBlockedArrestUntil(int turn) {
-    blockedArrestUntilTurnCounter = turn;
+void Player::setArrestBlockTurn(int turn) {
+    arrestBlockUntilTurnCounter = turn;
 }
 
-bool Player::canArrestNow() const {
-    if (!game) return true; // אם אין משחק – אין חסימה
-    return game->getTurnCounter() >= blockedArrestUntilTurnCounter;
+bool Player::isArrestBlocked() const {
+    return arrestBlockUntilTurnCounter > game->getTurnCounter();
 }
+
 
 void Player::setSanctionedUntilTurn(int turn) {
     sanctionedUntilTurnCounter = turn;

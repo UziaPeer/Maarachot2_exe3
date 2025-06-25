@@ -15,11 +15,17 @@ Spy::Spy(Game& game, const std::string& name)
 }
 
 void Spy::track(Player& other) {
+    if (!canAct()) throw std::runtime_error("Not your turn");
+
     std::cout << other.getName() << " has " << other.coins() << " coins.\n";
 
-    int turnNow = game->getTurnCounter();
-    int totalPlayers = game->players().size();
+    int currentTurn = game->getTurnCounter();
+    int numPlayers = game->players().size();
 
-    other.setBlockedArrestUntil(turnNow + totalPlayers); // חסימה עד סיום תורו הקרוב
+    // נגדיר שהשחקן לא יכול לעשות arrest עד לסוף תורו הבא
+    other.setArrestBlockTurn(currentTurn + numPlayers);
+
 }
+
+
 

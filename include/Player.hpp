@@ -17,7 +17,7 @@ namespace coup {
         int lastBribeTurn;
         int lastArrestedTurn;
         int sanctionedUntil;
-        int blockedArrestUntilTurnCounter; // תור עד אליו אסור לבצע arrest
+        int arrestBlockUntilTurnCounter; // תור עד אליו חסום לבצע arrest
         int sanctionedUntilTurnCounter; // תור עד אליו השחקן חסום כלכלית
 
 
@@ -54,11 +54,10 @@ namespace coup {
         int getLastBribeTurn() const;
         void reactivate();
 
-        void setBlockedArrestUntil(int turn); // קובע עד איזה תור אסור לבצע arrest
-        bool canArrest(int currentTurn) const;   // בודק אם מותר לבצע arrest בתור הנוכחי
+        void setArrestBlockTurn(int turn);   // הגדרת תור חסימה
         void setSanctionedUntilTurn(int turn); // קובע עד איזה תור תהיה חסימה
         bool isSanctioned() const;             // האם השחקן חסום כעת
-        bool canArrestNow() const;            // האם מותר לו לבצע arrest כעת
+        bool isArrestBlocked() const;        // האם כרגע חסום מ-arrest         // האם מותר לו לבצע arrest כעת
 
         friend class Game;
     };
