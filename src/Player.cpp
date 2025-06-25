@@ -3,6 +3,7 @@
 #include "Game.hpp"
 #include <stdexcept>
 #include "Judge.hpp"
+#include "General.hpp"
 
 
 using namespace coup;
@@ -77,6 +78,12 @@ void Player::arrest(Player& other) {
     }
     other.removeCoins(1);
     addCoins(1);
+    if (dynamic_cast<General*>(&other) != nullptr) {
+        // התוקף (השחקן הזה) מאבד מטבע
+        removeCoins(1);
+        // הגנרל מקבל את המטבע
+        other.addCoins(1);
+    }
     other.setLastArrestedTurn(game->getTurnCounter());
     markAction();
 }
