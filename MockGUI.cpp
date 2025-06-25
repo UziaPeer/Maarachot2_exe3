@@ -69,6 +69,15 @@ int main() {
                 }
             }
 
+            // 🟢 בונוס ל-Merchant: בתחילת תור עם 3+ מטבעות מקבל 1 נוסף
+            if (auto merchant = dynamic_pointer_cast<Merchant>(currentPlayer)) {
+                if (merchant->coins() >= 3) {
+                    merchant->addCoins(1);
+                    std::cout << "(Bonus) Merchant received +1 coin at start of turn.\n";
+                    printGameState(game, players);
+                 }
+            }
+
             if (!currentPlayer) {
                 cout << "אין שחקן פעיל בתור.\n";
                 break;
