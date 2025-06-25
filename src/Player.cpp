@@ -2,6 +2,8 @@
 #include "Player.hpp"
 #include "Game.hpp"
 #include <stdexcept>
+#include "Judge.hpp"
+
 
 using namespace coup;
 
@@ -81,9 +83,19 @@ void Player::arrest(Player& other) {
 
 void Player::sanction(Player& other) {
     if (!canAct()) throw std::runtime_error("Not your turn");
-    if (coins() < 3) throw std::runtime_error("Not enough coins for sanction");
+    int cost = 3;
 
-    removeCoins(3);
+    // 🛡️ אם מבצעים סנקציה על שופט – העלות גבוהה יותר
+    if (dynamic_cast<Judge*>(&other) != nullptr) {
+        cost = 4;
+    }
+
+    if (coins() < cost) {
+        throw std::runtime_error("Not enough coins for sanction");
+    }
+
+    removeCoins(cost);
+
 
     // הסנקציה תסתיים רק לאחר שיגיע תורו ויתבצע
     int turnNow = game->getTurnCounter();
