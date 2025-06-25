@@ -5,6 +5,7 @@
 #include "Judge.hpp"
 #include "General.hpp"
 #include "Baron.hpp"
+#include "Merchant.hpp"
 #include <iostream>
 
 
@@ -97,6 +98,12 @@ void Player::arrest(Player& other) {
         removeCoins(1);
         // הגנרל מקבל את המטבע
         other.addCoins(1);
+    }
+    if (dynamic_cast<Merchant*>(&other) != nullptr) {
+        //  התוקף מאבד את המטבע שכביכול הרוויח
+        removeCoins(1);
+        // הסוחר מאבד עוד מטבע
+        other.removeCoins(1);
     }
     other.setLastArrestedTurn(game->getTurnCounter());
     markAction();
