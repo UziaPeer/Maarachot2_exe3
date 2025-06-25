@@ -4,6 +4,8 @@
 #include <stdexcept>
 #include "Judge.hpp"
 #include "General.hpp"
+#include "Baron.hpp"
+#include <iostream>
 
 
 using namespace coup;
@@ -108,6 +110,12 @@ void Player::sanction(Player& other) {
     int turnNow = game->getTurnCounter();
     int totalPlayers = game->players().size();
     other.setSanctionedUntilTurn(turnNow + totalPlayers);  // עד לסיום תורו הבא
+
+    // בונוס לברון: מקבל מטבע אם הוטל עליו sanction
+    if (dynamic_cast<Baron*>(&other) != nullptr) {
+        other.addCoins(1);
+        std::cout << "(Bonus) Baron received +1 coin after being sanctioned.\n";
+    }
 
     markAction();
 }
