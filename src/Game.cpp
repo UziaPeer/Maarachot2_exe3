@@ -88,14 +88,34 @@ void Game::advanceTurn() {
     int count = players_list.size();
     if (count == 0) return;
 
-    game_started = true; // המשחק התחיל כשמתבצעת פעולה כלשהי
+    game_started = true;
 
+    // עדכון תור קודם
+    auto& curr = *players_list[current_index];
+
+    // אם השחקן הנוכחי משתמש עכשיו בתור כפול — ניתן לו להישאר
+    if (curr.isUsingExtraTurn) {
+        curr.isUsingExtraTurn = false; // סיים את תורו השני
+        return;
+    }
+
+    // מעבר לשחקן הבא
     do {
         current_index = (current_index + 1) % count;
     } while (!players_list[current_index]->isActive());
 
+    auto& next = *players_list[current_index];
+
+    // אם השחקן הגיע לתורו ויש לו בונוס — נפעיל אותו
+    if (next.hasExtraTurnNextRound) {
+        next.hasExtraTurnNextRound = false;
+        next.isUsingExtraTurn = true;
+    }
+
     turn_counter++;
 }
+
+
 
 /**
  * מסירה שחקן שהודח מהמשחק

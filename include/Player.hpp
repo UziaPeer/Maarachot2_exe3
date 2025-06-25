@@ -58,6 +58,9 @@ namespace coup {
         void setSanctionedUntilTurn(int turn); // קובע עד איזה תור תהיה חסימה
         bool isSanctioned() const;             // האם השחקן חסום כעת
         bool isArrestBlocked() const;        // האם כרגע חסום מ-arrest         // האם מותר לו לבצע arrest כעת
+        bool hasExtraTurnNextRound = false;
+        bool isUsingExtraTurn = false;
+
 
         friend class Game;
     };

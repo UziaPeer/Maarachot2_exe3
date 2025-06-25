@@ -62,12 +62,23 @@ void Player::tax() {
 }
 
 void Player::bribe() {
-    if (!canAct()) throw std::runtime_error("Not your turn");
-    if (coins() >= 10) throw std::runtime_error("Must perform coup with 10 coins"); 
+    if (!canAct()) {
+        throw std::runtime_error("Not your turn");
+    }
+    if (coins() >= 10) {
+        throw std::runtime_error("Must perform coup with 10 coins");
+    }
+
     removeCoins(4);
     lastBribeTurn = game->getTurnCounter();
+
+    // 🟢 סמן שבסיבוב הבא השחקן יקבל תור כפול
+    hasExtraTurnNextRound = true;
+
+    // סיום התור הנוכחי
     markAction();
 }
+
 
 void Player::arrest(Player& other) {
     if (!canAct()) throw std::runtime_error("Not your turn");
