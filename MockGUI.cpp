@@ -43,6 +43,22 @@ int chooseTarget(const vector<shared_ptr<Player>>& players, const string& curren
     return target;
 }
 
+int chooseAnyTarget(const vector<shared_ptr<Player>>& players) {
+    cout << "\nבחר שחקן יעד לפי מספר:\n";
+    for (size_t i = 0; i < players.size(); ++i) {
+        cout << i << ". " << players[i]->getName();
+        if (!players[i]->isActive()) cout << " (מודח)";
+        cout << "\n";
+    }
+    int target = -1;
+    cin >> target;
+    if (target < 0 || target >= (int)players.size()) {
+        throw runtime_error("שחקן לא חוקי");
+    }
+    return target;
+}
+
+
 int main() {
     Game game;
 
@@ -124,7 +140,7 @@ int main() {
 
             // פעולות שדורשות יעד
             if (action == 4 || action == 5 || action == 6 ||
-                action == 7 || action == 9 || action == 10 || action == 11) {
+                action == 7 || action == 9 || action == 11) {
                 int targetIndex = chooseTarget(players, currentPlayer->getName());
                 auto& target = players[targetIndex];
 
@@ -141,17 +157,19 @@ int main() {
                         gov->undo(*target);
                     }
                 }
-                else if (action == 10) {
-                    if (auto gen = dynamic_pointer_cast<General>(currentPlayer)) {
-                        gen->blockCoup(*target);
-                    }
-                }
                 else if (action == 11) {
                     if (auto judge = dynamic_pointer_cast<Judge>(currentPlayer)) {
                         judge->undo(*target);
                     }
                 }
-            } else {
+            } 
+            else if (action == 10) {
+                if (auto gen = dynamic_pointer_cast<General>(currentPlayer)) {
+                    int idx = chooseAnyTarget(players);
+                    gen->blockCoup(*players[idx]);
+                }
+            }            
+            else {
                 switch (action) {
                     case 1: currentPlayer->gather(); break;
                     case 2: currentPlayer->tax(); break;

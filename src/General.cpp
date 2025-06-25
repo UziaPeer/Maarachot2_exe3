@@ -20,17 +20,23 @@ General::General(Game& game, const std::string& name)
  * במשחק שלנו לא תומכים ב־"intercept" אמיתי בזמן אמת.
  */
 void General::blockCoup(Player& target) {
+    if (!canAct()) {
+        throw std::runtime_error("Not your turn");
+    }
+
     if (coins() < 5) {
         throw std::runtime_error("Not enough coins to block coup");
     }
 
-    removeCoins(5);
+    if (target.isActive()) {
+        throw std::runtime_error("Target is still active – cannot block coup");
+    }
 
-    // פעולה זו תבוטל בקוד מבחן – לדוגמה, לא מוחקים את השחקן או מבטלים את הסרה
-    // אנחנו רק מסמנים שהוא עדיין חי ולא נגעו בו.
-    target.reactivate();
-
+    removeCoins(5);        // תשלום על הפעולה
+    target.reactivate();   // החזרת שחקן מודח למשחק
+    markAction();          // סיום התור של הגנרל
 }
+
 
 /**
  * גנרל נעצר – מקבל את המטבע שנלקח ממנו חזרה
