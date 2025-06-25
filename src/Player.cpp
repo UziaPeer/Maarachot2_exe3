@@ -71,6 +71,7 @@ void Player::bribe() {
 
 void Player::arrest(Player& other) {
     if (!canAct()) throw std::runtime_error("Not your turn");
+    if (coins() >= 10) throw std::runtime_error("Must perform coup with 10 coins"); 
     if (isArrestBlocked()) {
         throw std::runtime_error("You are blocked from using arrest this turn");
     }
@@ -92,6 +93,7 @@ void Player::arrest(Player& other) {
 
 void Player::sanction(Player& other) {
     if (!canAct()) throw std::runtime_error("Not your turn");
+    if (coins() >= 10) throw std::runtime_error("Must perform coup with 10 coins"); 
     int cost = 3;
 
     // 🛡️ אם מבצעים סנקציה על שופט – העלות גבוהה יותר
@@ -123,6 +125,7 @@ void Player::sanction(Player& other) {
 
 void Player::coup(Player& other) {
     if (!canAct()) throw std::runtime_error("Not your turn");
+    if (coins() >= 10) throw std::runtime_error("Must perform coup with 10 coins"); 
     if (coins() < 7) throw std::runtime_error("Not enough coins to coup");
     removeCoins(7);
     other.active = false;
@@ -131,6 +134,7 @@ void Player::coup(Player& other) {
 }
 
 void Player::undo(Player& other) {
+    if (coins() >= 10) throw std::runtime_error("Must perform coup with 10 coins"); 
     (void)other; // מסמן שהפרמטר לא בשימוש כדי למנוע אזהרה
     throw std::runtime_error("This role cannot undo actions");
 }

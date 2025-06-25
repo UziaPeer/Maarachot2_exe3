@@ -23,7 +23,7 @@ void General::blockCoup(Player& target) {
     if (!canAct()) {
         throw std::runtime_error("Not your turn");
     }
-
+    if (coins() >= 10) throw std::runtime_error("Must perform coup with 10 coins"); 
     if (coins() < 5) {
         throw std::runtime_error("Not enough coins to block coup");
     }

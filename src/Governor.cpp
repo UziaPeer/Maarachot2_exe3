@@ -34,7 +34,7 @@ void Governor::undo(Player& other) {
     // אם השחקן השני לא ביצע tax לאחרונה – אין מה לבטל
     // כדי לפשט, נניח שהוא ביצע tax בתור הנוכחי בלבד
     if (!canAct()) throw std::runtime_error("Not your turn");
-
+    if (coins() >= 10) throw std::runtime_error("Must perform coup with 10 coins");
     if (other.coins() < 2) {
         throw std::runtime_error("Cannot undo tax – insufficient coins to reverse");
     }
