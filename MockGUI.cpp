@@ -102,6 +102,17 @@ int main() {
             int action = -1;
             cin >> action;
 
+            if (cin.fail()) {
+                cin.clear(); // מנקה מצב שגיאה
+                cin.ignore(numeric_limits<streamsize>::max(), '\n'); // מדלג על השורה הבעייתית
+                throw runtime_error(" קלט לא חוקי - יש להקליד מספר מתוך התפריט, לחץ על המספר הרצוי פעמיים");
+            }
+
+            if (action == 0) {
+                cout << "המשחק הסתיים.\n";
+                break;
+            }
+
             // פעולות שדורשות יעד
             if (action == 4 || action == 5 || action == 6 ||
                 action == 7 || action == 9 || action == 10 || action == 11) {
