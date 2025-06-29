@@ -24,7 +24,11 @@ namespace coup {
 
     public:
         Player(Game& g, const std::string& name);
-        virtual ~Player() = default;
+        // כלל השלושה:
+        Player(const Player& other);
+        Player& operator=(const Player& other);
+        ~Player();
+
 
         std::string getName() const;
         virtual std::string role() const;
@@ -60,7 +64,8 @@ namespace coup {
         bool isArrestBlocked() const;        // האם כרגע חסום מ-arrest         // האם מותר לו לבצע arrest כעת
         bool hasExtraTurnNextRound = false;
         bool isUsingExtraTurn = false;
-
+        
+        
 
         friend class Game;
     };

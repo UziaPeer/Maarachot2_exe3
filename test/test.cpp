@@ -149,5 +149,20 @@ TEST_CASE("Joker מבצע invest ו־undo בלי להשתמש ב-tax") {
     CHECK(spy.coins() == 3);
 }
 
+TEST_CASE("כלל השלושה – Copy constructor") {
+    Game g;
+    Player p1(g, "Original");
+    Player p2 = p1; // Copy constructor
+    CHECK(p2.getName() == "Original");
+}
+
+TEST_CASE("כלל השלושה – Copy assignment") {
+    Game g;
+    Player p1(g, "Original");
+    Player p2(g, "Temp");
+    p2 = p1; // Copy assignment
+    CHECK(p2.getName() == "Original");
+}
+
 
 

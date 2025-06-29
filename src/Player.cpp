@@ -143,7 +143,6 @@ void Player::sanction(Player& other) {
 
 void Player::coup(Player& other) {
     if (!canAct()) throw std::runtime_error("Not your turn");
-    if (coins() >= 10) throw std::runtime_error("Must perform coup with 10 coins"); 
     if (coins() < 7) throw std::runtime_error("Not enough coins to coup");
     removeCoins(7);
     other.active = false;
@@ -206,4 +205,44 @@ void Player::setSanctionedUntilTurn(int turn) {
 
 bool Player::isSanctioned() const {
     return sanctionedUntilTurnCounter > game->getTurnCounter();
+}
+
+// Copy constructor
+Player::Player(const Player& other)
+    : name(other.name),
+      role_name(other.role_name),
+      coin_count(other.coin_count),
+      game(other.game),
+      active(other.active),
+      lastBribeTurn(other.lastBribeTurn),
+      lastArrestedTurn(other.lastArrestedTurn),
+      sanctionedUntil(other.sanctionedUntil),
+      arrestBlockUntilTurnCounter(other.arrestBlockUntilTurnCounter),
+      sanctionedUntilTurnCounter(other.sanctionedUntilTurnCounter)
+{
+    // כאן אין צורך להוסיף משהו כי אין ניהול זיכרון, אבל אפשר לשים הודעה להדגמה:
+    // std::cout << "Player copy constructor called\n";
+}
+
+// Copy assignment operator
+Player& Player::operator=(const Player& other) {
+    if (this != &other) {
+        name = other.name;
+        role_name = other.role_name;
+        coin_count = other.coin_count;
+        game = other.game;
+        active = other.active;
+        lastBribeTurn = other.lastBribeTurn;
+        lastArrestedTurn = other.lastArrestedTurn;
+        sanctionedUntil = other.sanctionedUntil;
+        arrestBlockUntilTurnCounter = other.arrestBlockUntilTurnCounter;
+        sanctionedUntilTurnCounter = other.sanctionedUntilTurnCounter;
+    }
+    // std::cout << "Player copy assignment operator called\n";
+    return *this;
+}
+
+// Destructor
+Player::~Player() {
+    // std::cout << "Player destructor called\n";
 }
