@@ -10,7 +10,7 @@ namespace coup {
      * - מקבל 3 מטבעות במקום 2 בפעולת tax.
      * - יכול לבטל פעולה של tax של שחקן אחר.
      */
-    class Governor : public Player {
+    class Governor : virtual public Player {
     public:
         // בנאי – מקבל הפניה למשחק ואת שם השחקן
         Governor(Game& game, const std::string& name);

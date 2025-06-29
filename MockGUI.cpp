@@ -6,6 +6,8 @@
 #include "General.hpp"
 #include "Judge.hpp"
 #include "Merchant.hpp"
+#include "Joker.hpp"
+
 
 #include <iostream>
 #include <string>
@@ -68,7 +70,8 @@ int main() {
         make_shared<Baron>(game, "Charlie"),
         make_shared<Judge>(game, "Dana"),
         make_shared<General>(game, "Eyal"),
-        make_shared<Merchant>(game, "Tamar")
+        make_shared<Merchant>(game, "Tamar"),
+       // make_shared<Joker>(game, "JokerMan")
     };
 
     while (true) {

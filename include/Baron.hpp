@@ -10,7 +10,7 @@ namespace coup {
      * - יכול להשקיע: משלם 3 מטבעות ומקבל 6 (רווח של 3).
      * - אם חטף sanction, מקבל מטבע אחד פיצוי (כלומר מפסיד רק 2).
      */
-    class Baron : public Player {
+    class Baron : virtual public Player {
     public:
         // בנאי
         Baron(Game& game, const std::string& name);

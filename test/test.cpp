@@ -9,6 +9,7 @@
 #include "General.hpp"
 #include "Judge.hpp"
 #include "Merchant.hpp"
+#include "Joker.hpp"
 
 using namespace coup;
 
@@ -119,5 +120,34 @@ TEST_CASE("שחקן עם 10 מטבעות חייב לבצע coup") {
     // coup – מותרת
     CHECK_NOTHROW(gov.coup(baron));
 }
+
+TEST_CASE("Joker מבצע invest ו־undo בלי להשתמש ב-tax") {
+    Game g;
+    Joker j(g, "JokerMan");
+    Spy spy(g, "SpyGuy");
+
+    // מעלה את הג׳וקר ל־3 מטבעות כדי שיוכל להשקיע
+    j.gather();  // 1
+    spy.gather(); // תור שלו — חובה לשמור על תורות
+    j.gather();  // 2
+    spy.gather();
+    j.gather();  // 3
+    spy.gather();
+
+    CHECK(j.coins() == 3);
+
+    // מבצע invest → יש לו 6 יותר, מינוס 3 ששילם → 6 בסוף
+    CHECK_NOTHROW(j.invest());
+    CHECK(j.coins() == 6);
+
+    // עכשיו ה-Spy עושה tax
+    spy.tax();
+    CHECK(spy.coins() == 5);
+
+    // Joker משתמש ב-undo (היכולת שלו כ-Governor) על ה-Spy — מבטל tax
+    CHECK_NOTHROW(j.undo(spy));
+    CHECK(spy.coins() == 3);
+}
+
 
 

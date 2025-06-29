@@ -4,7 +4,7 @@ CXXFLAGS = -std=c++17 -Wall -Wextra -Iinclude
 
 # קבצי מקור
 SRC = src/Player.cpp src/Game.cpp src/Governor.cpp src/Spy.cpp src/Baron.cpp \
-      src/General.cpp src/Judge.cpp src/Merchant.cpp
+      src/General.cpp src/Judge.cpp src/Merchant.cpp src/Joker.cpp
 
 # קובץ הדגמה (Demo)
 MAIN = Demo.cpp
