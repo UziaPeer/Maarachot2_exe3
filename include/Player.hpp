@@ -4,19 +4,19 @@
 
 namespace coup {
 
-    class Game; // קדימה
+    class Game; 
 
     class Player {
-    protected:
+    protected:          // משתנים מוגנים כדי לאפשר גישה למחלקות יורשות
         std::string name;
         std::string role_name;
         int coin_count;
         Game* game;
         bool active;
 
-        int lastBribeTurn;
-        int lastArrestedTurn;
-        int sanctionedUntil;
+        int lastBribeTurn;              // תור האחרון בו השחקן שיחד
+        int lastArrestedTurn;           // תור האחרון בו השחקן נעצר
+        int sanctionedUntil;            // תור עד אליו השחקן תחת סנקציות 
         int arrestBlockUntilTurnCounter; // תור עד אליו חסום מלבצע arrest
         int sanctionedUntilTurnCounter; // תור עד אליו השחקן חסום כלכלית (תחת סנקציות)
 
@@ -100,7 +100,7 @@ namespace coup {
 
         void setArrestBlockTurn(int turn);   //  הגדרת תור חסימה מפעולת arrest
         bool isArrestBlocked() const;          // האם מותר לו לבצע arrest כעת
-        
+
         void setSanctionedUntilTurn(int turn); // מגדיר את התור עד אליו השחקן תחת סנקציות
         bool isSanctioned() const;             // האם השחקן תחת סנקציות כעת
         

@@ -11,34 +11,42 @@
 
 using namespace coup;
 
+// בנאי: מאתחל אובייקט שחקן עם שם, תפקיד ומספר מטבעות התחלתי.
+// מוסיף את השחקן למשחק.
 Player::Player(Game& g, const std::string& name)
     : name(name), role_name("Player"), coin_count(0), game(&g),
-      active(true), lastBribeTurn(-1), lastArrestedTurn(-1), sanctionedUntil(-1), arrestBlockUntilTurnCounter (-1)
-        , sanctionedUntilTurnCounter(-1)
-{
+      active(true), lastBribeTurn(-1), lastArrestedTurn(-1), sanctionedUntil(-1), arrestBlockUntilTurnCounter(-1),
+      sanctionedUntilTurnCounter(-1) {
     g.addPlayer(this);
 }
 
+// מחזיר את שם השחקן.
 std::string Player::getName() const {
     return name;
 }
 
+// מחזיר את התפקיד של השחקן.
 std::string Player::role() const {
     return role_name;
 }
 
+// מחזיר את מספר המטבעות הנוכחי של השחקן.
 int Player::coins() const {
     return coin_count;
 }
 
+// בודק אם השחקן פעיל במשחק.
 bool Player::isActive() const {
     return active;
 }
 
+// מוסיף מספר מטבעות מסוים למספר המטבעות של השחקן.
 void Player::addCoins(int amount) {
     coin_count += amount;
 }
 
+// מסיר מספר מטבעות מסוים ממספר המטבעות של השחקן.
+// זורק חריגה אם לשחקן אין מספיק מטבעות.
 void Player::removeCoins(int amount) {
     if (coin_count < amount) {
         throw std::runtime_error("Not enough coins");
@@ -46,6 +54,8 @@ void Player::removeCoins(int amount) {
     coin_count -= amount;
 }
 
+// מאפשר לשחקן לאסוף מטבע אחד אם זה תורו והוא לא תחת סנקציה.
+// זורק חריגות עבור תנאים לא חוקיים.
 void Player::gather() {
     if (!canAct()) throw std::runtime_error("Not your turn");
     if (coins() >= 10) throw std::runtime_error("Must perform coup with 10 coins");  
@@ -54,6 +64,8 @@ void Player::gather() {
     markAction();
 }
 
+// מאפשר לשחקן לאסוף שני מטבעות אם זה תורו והוא לא תחת סנקציה.
+// זורק חריגות עבור תנאים לא חוקיים.
 void Player::tax() {
     if (!canAct()) throw std::runtime_error("Not your turn");
     if (coins() >= 10) throw std::runtime_error("Must perform coup with 10 coins"); 
@@ -62,6 +74,8 @@ void Player::tax() {
     markAction();
 }
 
+// מאפשר לשחקן לשחד, עולה 4 מטבעות ומעניק תור נוסף בסיבוב הבא.
+// זורק חריגות עבור תנאים לא חוקיים.
 void Player::bribe() {
     if (!canAct()) {
         throw std::runtime_error("Not your turn");
@@ -73,14 +87,15 @@ void Player::bribe() {
     removeCoins(4);
     lastBribeTurn = game->getTurnCounter();
 
-    // 🟢 סמן שבסיבוב הבא השחקן יקבל תור כפול
+    // מסמן שהשחקן יקבל תור נוסף בסיבוב הבא.
     hasExtraTurnNextRound = true;
 
-    // סיום התור הנוכחי
+    // מסיים את התור הנוכחי.
     markAction();
 }
 
-
+// מאפשר לשחקן לעצור שחקן אחר, מעביר מטבעות ומחיל עונשים בהתאם לתפקידים.
+// זורק חריגות עבור תנאים לא חוקיים.
 void Player::arrest(Player& other) {
     if (!canAct()) throw std::runtime_error("Not your turn");
     if (coins() >= 10) throw std::runtime_error("Must perform coup with 10 coins"); 
@@ -94,27 +109,30 @@ void Player::arrest(Player& other) {
     other.removeCoins(1);
     addCoins(1);
     if (dynamic_cast<General*>(&other) != nullptr) {
-        // התוקף (השחקן הזה) מאבד מטבע
+        // התוקף (השחקן הזה) מאבד מטבע.
         removeCoins(1);
-        // הגנרל מקבל את המטבע
+        // הגנרל מקבל את המטבע.
         other.addCoins(1);
     }
+        // אם השחקן הנענש הוא סוחר הוא מאבד 2 מטבעות לקופה במקום אחד לתוקף
     if (dynamic_cast<Merchant*>(&other) != nullptr) {
-        //  התוקף מאבד את המטבע שכביכול הרוויח
+        // התוקף מאבד את המטבע שהוא כביכול הרוויח.
         removeCoins(1);
-        // הסוחר מאבד עוד מטבע
+        // הסוחר מאבד מטבע נוסף.
         other.removeCoins(1);
     }
     other.setLastArrestedTurn(game->getTurnCounter());
     markAction();
 }
 
+// מאפשר לשחקן להטיל סנקציה על שחקן אחר, מחיל עונשים בהתאם לתפקידים.
+// זורק חריגות עבור תנאים לא חוקיים.
 void Player::sanction(Player& other) {
     if (!canAct()) throw std::runtime_error("Not your turn");
     if (coins() >= 10) throw std::runtime_error("Must perform coup with 10 coins"); 
     int cost = 3;
 
-    // 🛡️ אם מבצעים סנקציה על שופט – העלות גבוהה יותר
+    // אם מטילים סנקציה על שופט, העלות גבוהה יותר.
     if (dynamic_cast<Judge*>(&other) != nullptr) {
         cost = 4;
     }
@@ -125,13 +143,12 @@ void Player::sanction(Player& other) {
 
     removeCoins(cost);
 
-
-    // הסנקציה תסתיים רק לאחר שיגיע תורו ויתבצע
+    // הסנקציה מסתיימת רק לאחר התור הבא של המטרה.
     int turnNow = game->getTurnCounter();
     int totalPlayers = game->players().size();
-    other.setSanctionedUntilTurn(turnNow + totalPlayers);  // עד לסיום תורו הבא
+    other.setSanctionedUntilTurn(turnNow + totalPlayers);  // עד סוף התור הבא שלהם.
 
-    // בונוס לברון: מקבל מטבע אם הוטל עליו sanction
+    // בונוס לברון: מקבל מטבע אם הוטלה עליו סנקציה.
     if (dynamic_cast<Baron*>(&other) != nullptr) {
         other.addCoins(1);
         std::cout << "(Bonus) Baron received +1 coin after being sanctioned.\n";
@@ -140,7 +157,8 @@ void Player::sanction(Player& other) {
     markAction();
 }
 
-
+// מאפשר לשחקן לבצע הפיכה, מסיר שחקן אחר מהמשחק.
+// עולה 7 מטבעות וזורק חריגות עבור תנאים לא חוקיים.
 void Player::coup(Player& other) {
     if (!canAct()) throw std::runtime_error("Not your turn");
     if (coins() < 7) throw std::runtime_error("Not enough coins to coup");
@@ -150,58 +168,64 @@ void Player::coup(Player& other) {
     markAction();
 }
 
+// זורק חריגה מכיוון שתפקיד זה (שחקן כללי) לא יכול לבטל פעולות.
 void Player::undo(Player& other) {
     if (coins() >= 10) throw std::runtime_error("Must perform coup with 10 coins"); 
-    (void)other; // מסמן שהפרמטר לא בשימוש כדי למנוע אזהרה
+    (void)other; // מסמן את הפרמטר כלא בשימוש כדי להימנע מאזהרות.
     throw std::runtime_error("This role cannot undo actions");
 }
 
+// מסמן את הפעולה של השחקן ומתקדם בתור המשחק.
 void Player::markAction() {
     game->advanceTurn();
 }
 
+// בודק אם זה תורו של השחקן לפעול.
 bool Player::canAct() const {
     return game->getCurrentPlayer() == this;
 }
 
+// מחזיר את התור האחרון שבו השחקן נעצר.
 int Player::getLastArrestedTurn() const {
     return lastArrestedTurn;
 }
 
+// מגדיר את התור האחרון שבו השחקן נעצר.
 void Player::setLastArrestedTurn(int turn) {
     lastArrestedTurn = turn;
 }
 
-
-
-// ✅ פונקציות שנוספו:
-
+// מחזיר את התור האחרון שבו השחקן שיחד.
 int Player::getLastBribeTurn() const {
     return lastBribeTurn;
 }
 
+// מפעיל מחדש את השחקן במשחק.
 void Player::reactivate() {
     active = true;
 }
 
+// מגדיר את התור עד אליו השחקן חסום מלעצור.
 void Player::setArrestBlockTurn(int turn) {
     arrestBlockUntilTurnCounter = turn;
 }
 
+// בודק אם השחקן חסום מלעצור.
 bool Player::isArrestBlocked() const {
     return arrestBlockUntilTurnCounter > game->getTurnCounter();
 }
 
-
+// מגדיר את התור עד אליו השחקן תחת סנקציה.
 void Player::setSanctionedUntilTurn(int turn) {
     sanctionedUntilTurnCounter = turn;
 }
 
+// בודק אם השחקן כרגע תחת סנקציה.
 bool Player::isSanctioned() const {
     return sanctionedUntilTurnCounter > game->getTurnCounter();
 }
 
-// Copy constructor
+// בנאי העתקה: יוצר אובייקט שחקן חדש כהעתק של אחר.
 Player::Player(const Player& other)
     : name(other.name),
       role_name(other.role_name),
@@ -212,13 +236,10 @@ Player::Player(const Player& other)
       lastArrestedTurn(other.lastArrestedTurn),
       sanctionedUntil(other.sanctionedUntil),
       arrestBlockUntilTurnCounter(other.arrestBlockUntilTurnCounter),
-      sanctionedUntilTurnCounter(other.sanctionedUntilTurnCounter)
-{
-    // כאן אין צורך להוסיף משהו כי אין ניהול זיכרון, אבל אפשר לשים הודעה להדגמה:
-    // std::cout << "Player copy constructor called\n";
+      sanctionedUntilTurnCounter(other.sanctionedUntilTurnCounter) {
 }
 
-// Copy assignment operator
+// אופרטור השמה העתקה: משייך את הערכים של אובייקט שחקן אחר לזה.
 Player& Player::operator=(const Player& other) {
     if (this != &other) {
         name = other.name;
@@ -232,11 +253,11 @@ Player& Player::operator=(const Player& other) {
         arrestBlockUntilTurnCounter = other.arrestBlockUntilTurnCounter;
         sanctionedUntilTurnCounter = other.sanctionedUntilTurnCounter;
     }
-    // std::cout << "Player copy assignment operator called\n";
     return *this;
 }
 
-// Destructor
+// דסטרוקטור: מנקה את אובייקט השחקן.
 Player::~Player() {
-    // std::cout << "Player destructor called\n";
+    // אין צורך בניקוי מיוחד כי אין משאבים דינמיים
+    // השחקן מוסר את עצמו מהמשחק בעת ההדחה
 }
