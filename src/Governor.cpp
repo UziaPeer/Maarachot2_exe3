@@ -6,7 +6,8 @@
 using namespace coup;
 
 /**
- * בנאי של Governor – קורא לבנאי של המחלקה הבסיסית Player
+ * בנאי – מקבל הפניה למשחק ואת שם השחקן
+ *  יוצר אובייקט מסוג נציב ומגדיר את שם התפקיד
  */
 Governor::Governor(Game& game, const std::string& name)
     : Player(game, name)
@@ -15,21 +16,23 @@ Governor::Governor(Game& game, const std::string& name)
 }
 
 /**
- * פעולה מיוחדת – מס (tax) עם בונוס:
- * מקבל 3 מטבעות במקום 2.
+ *  מקבל 3 מטבעות במקום 2 בפעולת tax.
  */
 void Governor::tax() {
+    // בדיקה אם זה תורו של המושל
     if (!canAct()) throw std::runtime_error("Not your turn");
+    // בדיקה אם יש לו 10 מטבעות – חובה לבצע הפיכה
     if (coins() >= 10) throw std::runtime_error("Must perform coup with 10 coins");
+    // בדיקה אם המושל תחת סנקציה 
     if (isSanctioned(game->getTurnCounter())) throw std::runtime_error("You are sanctioned");
     addCoins(3);
     markAction();
 }
 
 /**
- * undo – פעולה לחסימת tax של שחקנים אחרים.
- * מחזיר 2 מטבעות מהשחקן שביצע את הפעולה.
- * פעולה זו נועדה להעניש שחקנים שביצעו tax בתור הנוכחי בלבד.
+ * ביטול פעולת מס של שחקנים אחרים.
+ * מחזיר לקופה 2 מטבעות מהשחקן שביצע את הפעולה.
+ * פעולה זו ניתנת לביצוע על שחקנים שביצעו tax בתור האחרון שלהם בלבד.
  */
 void Governor::undo(Player& other) {
     // בדיקה אם זה תורו של המושל
@@ -40,7 +43,7 @@ void Governor::undo(Player& other) {
 
     // בדיקה אם לשחקן השני יש מספיק מטבעות כדי להחזיר
     if (other.coins() < 2) {
-        throw std::runtime_error("Cannot undo tax – insufficient coins to reverse");
+        throw std::runtime_error("Cannot undo tax – not enough coins to return");
     }
 
     // הסרת 2 מטבעות מהשחקן השני

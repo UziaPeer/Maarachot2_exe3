@@ -6,7 +6,8 @@
 using namespace coup;
 
 /**
- * בנאי של Spy – קורא לבנאי של Player ומגדיר את שם התפקיד
+ * בנאי – מקבל הפניה למשחק ואת שם השחקן
+ *  יוצר אובייקט מסוג סוחר ומגדיר את שם התפקיד
  */
 Spy::Spy(Game& game, const std::string& name)
     : Player(game, name)

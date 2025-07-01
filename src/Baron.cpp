@@ -5,7 +5,8 @@
 using namespace coup;
 
 /**
- * בנאי של Baron – מגדיר את שם התפקיד
+ * בנאי – מקבל הפניה למשחק ואת שם השחקן
+ *  יוצר אובייקט מסוג ברון ומגדיר את שם התפקיד
  */
 Baron::Baron(Game& game, const std::string& name)
     : Player(game, name)
@@ -15,10 +16,11 @@ Baron::Baron(Game& game, const std::string& name)
 
 /**
  * פעולה מיוחדת: invest – משקיע 3 מטבעות, מקבל 6
- * זוהי פעולה רגילה שדורשת להיות בתור.
+ * הפעולה דורשת תור רגיל
  */
 void Baron::invest() {
     if (!canAct()) throw std::runtime_error("Not your turn");
+    // מעל 10 מטבעות חייב לבצע הפיכה
     if (coins() >= 10) throw std::runtime_error("Must perform coup with 10 coins");
     // צריך לפחות 3 מטבעות כדי להשקיע
     if (coins() < 3) {
