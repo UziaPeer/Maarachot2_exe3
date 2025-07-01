@@ -92,8 +92,6 @@ namespace coup {
 
         int getLastArrestedTurn() const;
         void setLastArrestedTurn(int turn);
-        void setSanction(int until);
-        bool isSanctioned(int currentTurn) const;
 
         int getLastBribeTurn() const;
         void reactivate();

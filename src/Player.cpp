@@ -172,13 +172,7 @@ void Player::setLastArrestedTurn(int turn) {
     lastArrestedTurn = turn;
 }
 
-void Player::setSanction(int until) {
-    sanctionedUntil = until;
-}
 
-bool Player::isSanctioned(int currentTurn) const {
-    return currentTurn < sanctionedUntil;
-}
 
 // ✅ פונקציות שנוספו:
 

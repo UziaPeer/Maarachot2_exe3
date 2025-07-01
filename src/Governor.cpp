@@ -24,7 +24,7 @@ void Governor::tax() {
     // בדיקה אם יש לו 10 מטבעות – חובה לבצע הפיכה
     if (coins() >= 10) throw std::runtime_error("Must perform coup with 10 coins");
     // בדיקה אם המושל תחת סנקציה 
-    if (isSanctioned(game->getTurnCounter())) throw std::runtime_error("You are sanctioned");
+    if (isSanctioned()) throw std::runtime_error("You are under sanction and cannot gather");
     addCoins(3);
     markAction();
 }
