@@ -6,6 +6,7 @@ using namespace coup;
 
 /**
  * בנאי – הגדרת שם התפקיד
+ * יוצר אובייקט מסוג General ומגדיר את שם התפקיד כ"General"
  */
 General::General(Game& game, const std::string& name)
     : Player(game, name)
@@ -15,47 +16,32 @@ General::General(Game& game, const std::string& name)
 
 /**
  * פעולה מיוחדת: חוסם coup נגד שחקן אחר או נגד עצמו
- * עולה 5 מטבעות מהגנרל, ומונעת את ההדחה
- * **שימו לב**: בפועל הפעולה לא באמת חוסמת – צריך לקרוא לה לפני או אחרי ה־coup
- * במשחק שלנו לא תומכים ב־"intercept" אמיתי בזמן אמת.
+ * פעולה זו מאפשרת לגנרל להחזיר שחקן מודח למשחק על ידי תשלום של 5 מטבעות.
+ * הפעולה לא חוסמת את ההדחה בזמן אמת אלא מתבצעת לאחר או לפני ההדחה.
+ * אם השחקן המטרה עדיין פעיל, הפעולה תיכשל.
  */
 void General::blockCoup(Player& target) {
+    // בדיקה אם זה תורו של הגנרל
     if (!canAct()) {
         throw std::runtime_error("Not your turn");
     }
+    // בדיקה אם יש לגנרל 10 מטבעות – חובה לבצע הפיכה
     if (coins() >= 10) throw std::runtime_error("Must perform coup with 10 coins"); 
+    // בדיקה אם יש לגנרל מספיק מטבעות כדי לחסום את ההדחה
     if (coins() < 5) {
         throw std::runtime_error("Not enough coins to block coup");
     }
 
+    // בדיקה אם שחקן המטרה עדיין פעיל – לא ניתן לחסום את ההדחה
     if (target.isActive()) {
         throw std::runtime_error("Target is still active – cannot block coup");
     }
 
-    removeCoins(5);        // תשלום על הפעולה
-    target.reactivate();   // החזרת שחקן מודח למשחק
-    markAction();          // סיום התור של הגנרל
-}
-
-
-/**
- * גנרל נעצר – מקבל את המטבע שנלקח ממנו חזרה
- */
-void General::arrest(Player& other) {
-    if (!canAct()) throw std::runtime_error("Not your turn");
-
-    if (other.getLastArrestedTurn() == game->getTurnCounter() - 1)
-    {
-        throw std::runtime_error("Can't arrest same player twice in a row");
-    }
-
-    // מסיר מטבע מהשחקן השני
-    other.removeCoins(1);
-    addCoins(1); // המטבע של השחקן הזה (הגנרל) – מוחזר אליו אוטומטית
-
-    // מחזיר לעצמו את המטבע – כלומר לא מפסיד באמת כלום
-    addCoins(1);
-
-    other.setLastArrestedTurn(game->getTurnCounter());
+    // תשלום על הפעולה
+    removeCoins(5);
+    // החזרת שחקן מודח למשחק
+    target.reactivate();
+    // סיום התור של הגנרל
     markAction();
 }
+

@@ -30,18 +30,3 @@ void Baron::invest() {
     markAction();   // מסיים תור
 }
 
-/**
- * Baron מותקף ב־sanction → מקבל פיצוי של מטבע
- * כלומר משלם רק 2 במקום 3
- */
-void Baron::sanction(Player& other) {
-    if (!canAct()) throw std::runtime_error("Not your turn");
-
-    if (coins() < 2) {
-        throw std::runtime_error("Not enough coins to pay sanction (even reduced)");
-    }
-
-    removeCoins(2); // רק 2 מטבעות
-    other.setSanction(game->getTurnCounter() + 1); // חוסם את הפעולות שלו
-    markAction();
-}

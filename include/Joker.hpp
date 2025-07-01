@@ -5,12 +5,18 @@
 #include "Baron.hpp"
 
 namespace coup {
-
+/**
+ * מחלקת Joker
+ * תכונות מיוחדות:
+ * - יורש את הפעולות של Governor ו-Baron.
+ * - tax, undo, invest, sanction יורש:
+ */
 class Joker : public Governor, public Baron {
 public:
+
+     // בנאי – מקבל הפניה למשחק ואת שם השחקן
     Joker(Game& game, const std::string& name);
-    // ה־Joker לא צריך פונקציות ייחודיות —
-    // הוא יורש את tax, undo, invest, sanction דרך Governor ו־Baron.
+
 };
 
 }

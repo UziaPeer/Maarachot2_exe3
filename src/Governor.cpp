@@ -29,16 +29,23 @@ void Governor::tax() {
 /**
  * undo – פעולה לחסימת tax של שחקנים אחרים.
  * מחזיר 2 מטבעות מהשחקן שביצע את הפעולה.
+ * פעולה זו נועדה להעניש שחקנים שביצעו tax בתור הנוכחי בלבד.
  */
 void Governor::undo(Player& other) {
-    // אם השחקן השני לא ביצע tax לאחרונה – אין מה לבטל
-    // כדי לפשט, נניח שהוא ביצע tax בתור הנוכחי בלבד
+    // בדיקה אם זה תורו של המושל
     if (!canAct()) throw std::runtime_error("Not your turn");
+
+    // בדיקה אם יש למושל 10 מטבעות – חובה לבצע הפיכה
     if (coins() >= 10) throw std::runtime_error("Must perform coup with 10 coins");
+
+    // בדיקה אם לשחקן השני יש מספיק מטבעות כדי להחזיר
     if (other.coins() < 2) {
         throw std::runtime_error("Cannot undo tax – insufficient coins to reverse");
     }
 
+    // הסרת 2 מטבעות מהשחקן השני
     other.removeCoins(2);
-    markAction(); //  פעולה זו מסתיימת את התור
+
+    // סיום התור של המושל
+    markAction();
 }
