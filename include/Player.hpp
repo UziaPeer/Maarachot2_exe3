@@ -89,17 +89,21 @@ namespace coup {
         // בודקת האם השחקן יכול לבצע פעולה בתור הנוכחי
         // שימושי למניעת פעולות לא חוקיות
         bool canAct() const;
-
+        
+        //פונקציות שנועדו למנוע ביצוע arrest על אותו שחקן פעמיים ברציפות
         int getLastArrestedTurn() const;
         void setLastArrestedTurn(int turn);
 
-        int getLastBribeTurn() const;
-        void reactivate();
+        int getLastBribeTurn() const; // מחזירה את התור האחרון בו בשחקן שיחד
 
-        void setArrestBlockTurn(int turn);   // הגדרת תור חסימה
-        void setSanctionedUntilTurn(int turn); // קובע עד איזה תור תהיה חסימה
-        bool isSanctioned() const;             // האם השחקן חסום כעת
-        bool isArrestBlocked() const;        // האם כרגע חסום מ-arrest         // האם מותר לו לבצע arrest כעת
+        void reactivate(); // מחזירה את השחקן למשחק לאחר שהודח
+
+        void setArrestBlockTurn(int turn);   //  הגדרת תור חסימה מפעולת arrest
+        bool isArrestBlocked() const;          // האם מותר לו לבצע arrest כעת
+        
+        void setSanctionedUntilTurn(int turn); // מגדיר את התור עד אליו השחקן תחת סנקציות
+        bool isSanctioned() const;             // האם השחקן תחת סנקציות כעת
+        
         bool hasExtraTurnNextRound = false;
         bool isUsingExtraTurn = false;
         
