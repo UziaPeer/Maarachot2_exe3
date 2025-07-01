@@ -8,10 +8,9 @@ using namespace coup;
 // בנאי – מאתחל את המשתנים
 Game::Game() : current_index(0), turn_counter(0), game_started(false) {}
 
-/**
- * מוסיף שחקן חדש למשחק.
- * רק אם המשחק עדיין לא התחיל.
- */
+
+//  מוסיף שחקן חדש למשחק רק אם המשחק עוד לא התחיל
+
 void Game::addPlayer(Player* player) {
     if (game_started) {
         throw std::runtime_error("Cannot add players after the game has started");
@@ -22,9 +21,9 @@ void Game::addPlayer(Player* player) {
     players_list.push_back(player);
 }
 
-/**
- * מחזירה את שמות השחקנים שעדיין במשחק (פעילים)
- */
+
+// מחזירה את שמות השחקנים שעדיין במשחק (פעילים)
+
 std::vector<std::string> Game::players() const {
     std::vector<std::string> result;
     for (auto* p : players_list) {
@@ -35,9 +34,9 @@ std::vector<std::string> Game::players() const {
     return result;
 }
 
-/**
- * מחזירה את שם השחקן שתורו עכשיו
- */
+
+//מחזירה את שם השחקן שתורו עכשיו
+
 std::string Game::turn() const {
     if (players_list.empty()) {
         throw std::runtime_error("No players in game");
@@ -45,10 +44,9 @@ std::string Game::turn() const {
     return getCurrentPlayer()->getName();
 }
 
-/**
- * מחזירה את המנצח אם יש אחד בלבד.
- * אחרת זורקת חריגה.
- */
+
+// מחזירה את המנצח אם יש אחד בלבד, אחרת זורקת חריגה
+
 std::string Game::winner() const {
     int alive = 0;
     std::string winnerName = "";
@@ -67,9 +65,9 @@ std::string Game::winner() const {
     }
 }
 
-/**
- * מחזירה את השחקן שתורו כעת (כולל דילוג על מודחים)
- */
+
+// מחזירה את השחקן שתורו כעת (כולל דילוג על מודחים)
+
 Player* Game::getCurrentPlayer() const {
     int count = players_list.size();
     int idx = current_index % count;
@@ -81,9 +79,9 @@ Player* Game::getCurrentPlayer() const {
     return players_list[idx];
 }
 
-/**
- * מעבירה את התור לשחקן הבא הפעיל
- */
+
+// מעבירה את התור לשחקן הבא הפעיל
+
 void Game::advanceTurn() {
     int count = players_list.size();
     if (count == 0) return;
@@ -93,7 +91,7 @@ void Game::advanceTurn() {
     // עדכון תור קודם
     auto& curr = *players_list[current_index];
 
-    // אם השחקן הנוכחי משתמש עכשיו בתור כפול — ניתן לו להישאר
+    // אם השחקן הנוכחי משתמש עכשיו בתור כפול בעקבות שוחד, ניתן לו להישאר
     if (curr.isUsingExtraTurn) {
         curr.isUsingExtraTurn = false; // סיים את תורו השני
         return;
@@ -125,16 +123,16 @@ void Game::removePlayer(Player* player) {
     player->active = false;
 }
 
-/**
- * מחזירה את מספר התור הנוכחי (עבור חסימות וכו')
- */
+
+// מחזירה את מספר התור הנוכחי (עבור חסימות וכו')
+
 int Game::getTurnCounter() const {
     return turn_counter;
 }
 
-/**
- * האם המשחק התחיל (כלומר בוצעה פעולה)
- */
+
+// האם המשחק התחיל (כלומר בוצעה פעולה)
+
 bool Game::hasStarted() const {
     return game_started;
 }

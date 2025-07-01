@@ -17,36 +17,77 @@ namespace coup {
         int lastBribeTurn;
         int lastArrestedTurn;
         int sanctionedUntil;
-        int arrestBlockUntilTurnCounter; // תור עד אליו חסום לבצע arrest
-        int sanctionedUntilTurnCounter; // תור עד אליו השחקן חסום כלכלית
+        int arrestBlockUntilTurnCounter; // תור עד אליו חסום מלבצע arrest
+        int sanctionedUntilTurnCounter; // תור עד אליו השחקן חסום כלכלית (תחת סנקציות)
 
 
 
     public:
+        // בנאי – מקבל הפניה למשחק ואת שם השחקן
         Player(Game& g, const std::string& name);
         // כלל השלושה:
+        // בנאי העתקה 
         Player(const Player& other);
+        // אופרטור השמה
         Player& operator=(const Player& other);
+        // דסטרוקטור
         ~Player();
 
 
+        // מחזירה את שם השחקן
         std::string getName() const;
+
+        // מחזירה את שם התפקיד של השחקן
+        // שימושי לזיהוי סוג השחקן במשחק
         virtual std::string role() const;
+
+        // מחזירה את מספר המטבעות של השחקן
+        // שימושי לבדיקה האם השחקן יכול לבצע פעולות שדורשות מטבעות
         int coins() const;
+
+        // בודקת האם השחקן פעיל במשחק(לא הודח)
         bool isActive() const;
 
+        // פעולה שמאפשרת לשחקן לאסוף מטבע
+        // פעולה בסיסית שמוסיפה מטבע אחד לשחקן
         virtual void gather();
+
+        // פעולה שמאפשרת לשחקן לבצע מס (tax)
+        // פעולה שמוסיפה 2 מטבעות לשחקן למעט מקרה מיוחד של נציב  שמקבל 3
         virtual void tax();
+
+        // פעולה שמאפשרת לשחקן לשחד (bribe)
+        // פעולה שמסירה 4 מטבעות מהשחקן ומעניקה לו תור כפול בסיבוב הבא
         virtual void bribe();
+
+        // פעולה שמסירה מטבע אחד מהשחקן השני ומוסיפה אותו לשחקן הנוכחי
         virtual void arrest(Player& other);
+
+        // פעולה שמטילה סנקציה על שחקן אחר 
+        // פעולה שמסירה מטבעות מהשחקן הנוכחי וחוסמת את השחקן השני מלבצע מס או איסוף
         virtual void sanction(Player& other);
+
+        // פעולה שמאפשרת לשחקן לבצע הפיכה (coup)
+        // פעולה שמסירה 7 מטבעות מהשחקן ומדיחה שחקן אחר מהמשחק
         virtual void coup(Player& other);
+
+        // פעולה שמבטלת פעולה של שחקן אחר (undo)
+        // פעולה שמיועדת לתפקידים מסוימים בלבד
         virtual void undo(Player& other);
 
+        // מוסיפה מטבעות לשחקן
+        // שימושי כאשר השחקן מבצע פעולות שמזכות אותו במטבעות
         void addCoins(int amount);
+
+        // מסירה מטבעות מהשחקן
+        // שימושי כאשר השחקן מבצע פעולות שדורשות תשלום מטבעות
         void removeCoins(int amount);
 
+        // מסמנת את סיום הפעולה של השחקן ומקדמת את התור
         void markAction();
+
+        // בודקת האם השחקן יכול לבצע פעולה בתור הנוכחי
+        // שימושי למניעת פעולות לא חוקיות
         bool canAct() const;
 
         int getLastArrestedTurn() const;
@@ -54,7 +95,6 @@ namespace coup {
         void setSanction(int until);
         bool isSanctioned(int currentTurn) const;
 
-        // ✅ פונקציות שהוספנו:
         int getLastBribeTurn() const;
         void reactivate();
 
