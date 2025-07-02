@@ -13,6 +13,7 @@
 
 using namespace coup;
 
+// בדיקת gather - שחקן מתחיל עם 0 מטבעות, מבצע פעולה ומקבל מטבע אחד
 TEST_CASE("gather basic") {
     Game game;
     Player p(game, "P1");
@@ -21,6 +22,7 @@ TEST_CASE("gather basic") {
     CHECK(p.coins() == 1);
 }
 
+// בדיקת tax - שחקן רגיל מקבל 2 מטבעות, מושל מקבל בונוס של מטבע נוסף
 TEST_CASE("tax basic and Governor bonus") {
     Game game;
     Player p(game, "P1");
@@ -33,6 +35,7 @@ TEST_CASE("tax basic and Governor bonus") {
     CHECK(gov.coins() == 3);
 }
 
+// בדיקת שוחד - עלות השוחד ותור נוסף לשחקן
 TEST_CASE("bribe - cost and extra turn") {
     Game game;
     Player p(game, "P1");
@@ -46,7 +49,7 @@ TEST_CASE("bribe - cost and extra turn") {
     CHECK(p.coins() == 2);
 }
 
-//*  בדיקת arrest - אין כפול, general מקבל מטבע
+// בדיקת arrest - אין אפשרות לבצע פעמיים ברצף על אותו השחקן, גנרל מקבל מטבע כפיצוי
 TEST_CASE("arrest rules + General bonus") {
     Game game;
     Player p1(game, "P1");
@@ -67,7 +70,7 @@ TEST_CASE("arrest rules + General bonus") {
 }
 
 
-//  בדיקת sanction - cost + Judge + Baron
+// בדיקת sanction - עלות הפעולה, פיצוי לברון ועלות גבוהה יותר לשופט
 TEST_CASE("sanction rules") {
     Game game;
     Player p1(game, "P1");
@@ -89,6 +92,7 @@ TEST_CASE("sanction rules") {
     CHECK_THROWS(judge.gather());
 }
 
+// בדיקת coup - שחקן מדיח שחקן אחר, מאבד 7 מטבעות, השחקן המודח יוצא מהמשחק
 TEST_CASE("coup rules") {
     Game game;
     Player p1(game, "P1");
@@ -100,7 +104,7 @@ TEST_CASE("coup rules") {
     CHECK(p2.isActive() == false);
 }
 
-// 🟢 בדיקת blockCoup של General
+// גנרל מחזיר שחקן שהודח חזרה למשחק ובדיקת העלות של הפעולה
 TEST_CASE("General block coup") {
     Game game;
     Player p1(game, "P1");
@@ -120,7 +124,7 @@ TEST_CASE("General block coup") {
     CHECK(p2.isActive() == true);
 }
 
-//  בדיקת track של Spy
+// בדיקת track - בדיקה שהשחקן שבוצע עליו המעקב לא יכול לבצע מעצר בתורו
 TEST_CASE("Spy track") {
     Game game;
     Spy spy(game, "Spy");
@@ -129,9 +133,11 @@ TEST_CASE("Spy track") {
 
     spy.track(target);
     CHECK_THROWS(target.arrest(spy));
+    //לא מצאתי דרך לבדוק שאכן הודפס מספר המטבעות של שחקן המטרה אך אפשר לוודא ע"י הרצת המשחק
 }
 
-TEST_CASE("השקעה של Baron") {
+// invest - הברון משקיע ומקבל מטבעות נוספים
+TEST_CASE("Baron invest") {
     Game g;
     Baron b(g, "Baruch");
     Judge j(g, "Yarden");
@@ -147,6 +153,7 @@ TEST_CASE("השקעה של Baron") {
     CHECK(b.coins() == 6);
 }
 
+// undo - governor מבטל את פעולת tax של שחקן אחר
 TEST_CASE("governor undo") {
     Game g;
     Governor gov(g, "Alice");
@@ -160,6 +167,7 @@ TEST_CASE("governor undo") {
     CHECK(spy.coins() == 0); // הוריד ממנו 2
 }
 
+// undo - שופט מבטל שוחד של שחקן אחר
 TEST_CASE("undo bribe") {
     Game game;
     Player p(game, "P1");
@@ -190,12 +198,8 @@ TEST_CASE("Merchant bonus") {
     CHECK(p.coins() == 6);
 }*/
 
-
-
-
-
-
-TEST_CASE("חריגה כאשר שחקן פועל שלא בתורו") {
+// בדיקת חריגה כאשר שחקן פועל שלא בתורו
+TEST_CASE("Exception when player acts out of turn") {
     Game g;
 Governor gov(g, "Alice");
 Spy spy(g, "Bob");
@@ -207,22 +211,8 @@ CHECK_NOTHROW(spy.gather());    // Bob
 }
 
 
-
-
-
-TEST_CASE("בדיקת arrest כפול") {
-    Game g;
-    Spy s(g, "A");
-    General gen(g, "B");
-
-    s.gather(); // A
-    gen.gather(); // B
-
-    CHECK_NOTHROW(s.arrest(gen)); // מותר
-    CHECK_THROWS(s.arrest(gen));  // פעמיים ברצף – אסור
-}
-
-TEST_CASE("שחקן עם 10 מטבעות חייב לבצע coup") {
+// חובה לבצע הפיכה כאשר יש לשחקן 10 מטבעות או יותר בתחילת התור
+TEST_CASE("Player with 10 coins must coup") {
     Game g;
     Governor gov(g, "Alice");
     Spy spy(g, "Bob");
@@ -255,6 +245,7 @@ TEST_CASE("שחקן עם 10 מטבעות חייב לבצע coup") {
     CHECK_NOTHROW(gov.coup(baron));
 }
 
+// בדיקה שהירושה של הג'וקר יורשת  פעולות מהברון ומהנציב
 TEST_CASE("Joker מבצע invest ו־undo בלי להשתמש ב-tax") {
     Game g;
     Joker j(g, "JokerMan");
@@ -283,14 +274,16 @@ TEST_CASE("Joker מבצע invest ו־undo בלי להשתמש ב-tax") {
     CHECK(spy.coins() == 3);
 }
 
-TEST_CASE("כלל השלושה – Copy constructor") {
+// בדיקת כלל השלושה - בנאי העתקה
+TEST_CASE("Rule of three - Copy constructor") {
     Game g;
     Player p1(g, "Original");
     Player p2 = p1; // Copy constructor
     CHECK(p2.getName() == "Original");
 }
 
-TEST_CASE("כלל השלושה – Copy assignment") {
+// בדיקת כלל השלושה - אופרטור השמה
+TEST_CASE("Rule of three - Copy assignment") {
     Game g;
     Player p1(g, "Original");
     Player p2(g, "Temp");
@@ -298,7 +291,7 @@ TEST_CASE("כלל השלושה – Copy assignment") {
     CHECK(p2.getName() == "Original");
 }
 
-//  בדיקת turn, players, winner
+// בדיקת turn, players, winner - תור, שחקנים פעילים ומנצח
 TEST_CASE("turn, players, winner") {
     Game game;
     Governor gov(game, "Gov");
